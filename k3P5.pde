@@ -237,6 +237,9 @@ void setup() {
     .setColor(color(32))
     .setColorBackground(240)
     ;
+  
+  frameRate(60);
+  cp5.addFrameRate().setInterval(10).setPosition(10, 10);
 
   state = new State(510, 10, 240, 100, 160);
 
