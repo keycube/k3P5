@@ -224,6 +224,7 @@ void setup() {
           .setPosition(185, 20)
           .setSize(175, 120)
           .setItemHeight(20)
+          .setBarHeight(20)  
           ;
           
   InitListSerialPort();
@@ -299,7 +300,7 @@ void draw() {
 
   if (mListening) {
     while (myPort.available() > 0) {
-      String inBuffer = myPort.readString();   
+      String inBuffer = myPort.readStringUntil('.');
       if (inBuffer != null) {
         println(inBuffer);
         lookForKey(inBuffer);
@@ -330,7 +331,9 @@ void cleanKeysPress() {
 
 
 void InitListSerialPort() {
-  dropdownListSerialPort.setBarHeight(20);
+  // List all the available serial ports:
+  printArray(Serial.list());
+  
   String[] serialPortList = Serial.list();
   for (int i = 0; i < serialPortList.length; i++) {
     dropdownListSerialPort.addItem(serialPortList[i], i);  
@@ -440,10 +443,8 @@ void Listening(boolean theFlag) {
     mListening = theFlag;
     if (mListening) {
       if (myPort == null) {
-        // List all the available serial ports:
-        printArray(Serial.list());
         // Open the port you are using at the rate you want:
-        myPort = new Serial(this, Serial.list()[2], 9600);
+        myPort = new Serial(this, Serial.list()[portNumber], 9600);
       }
     }
   }
@@ -517,7 +518,7 @@ void lookForKey(String buffer) {
 
     try
     {
-      n = Integer.parseInt(s.substring(1), 16);
+      n = Integer.parseInt(s.substring(1, 2), 16);
     }
     catch (NumberFormatException nfe) 
     {
