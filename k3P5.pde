@@ -31,6 +31,7 @@ ControlP5 cp5;
 Textarea mainTextarea;
 Textfield mTextfieldLayout;
 DropdownList dropdownListSerialPort;
+Toggle toggleListening;
 
 /*
 ** Settings variable
@@ -61,6 +62,7 @@ int iPressI = -1;
 int iPressJ = -1;
 
 Serial myPort;  // The serial port
+int portNumber = -1;
 String keepUniChar = "";
 
 State state;
@@ -174,7 +176,7 @@ void setup() {
 
   cp5 = new ControlP5(this);
 
-  cp5.addToggle("Listening")
+  toggleListening = cp5.addToggle("Listening")
     .setPosition(130, 20)
     .setSize(50, 20)
     .setValue(false)
@@ -334,8 +336,6 @@ void InitListSerialPort() {
     dropdownListSerialPort.addItem(serialPortList[i], i);  
   }
   dropdownListSerialPort.close();
-  dropdownListSerialPort.setType(1);
-  dropdownListSerialPort.getCaptionLabel().set(serialPortList[1]);
 }
 
 /*
@@ -422,7 +422,7 @@ void controlEvent(ControlEvent theEvent) {
   else if (theEvent.isController()) {
     
     if (theEvent.isFrom(cp5.getController("ListSerialPort"))) {
-      println("codeListSerialPort: "+ (int) theEvent.getController().getValue());  
+      portNumber = (int) theEvent.getController().getValue();  
     }
   }
 }
@@ -433,13 +433,18 @@ void controlEvent(ControlEvent theEvent) {
  */
 
 void Listening(boolean theFlag) {
-  mListening = theFlag;
-  if (mListening) {
-    if (myPort == null) {
-      // List all the available serial ports:
-      printArray(Serial.list());
-      // Open the port you are using at the rate you want:
-      myPort = new Serial(this, Serial.list()[2], 9600);
+  if (portNumber == -1) {
+    toggleListening.setValue(false);
+  }
+  else {
+    mListening = theFlag;
+    if (mListening) {
+      if (myPort == null) {
+        // List all the available serial ports:
+        printArray(Serial.list());
+        // Open the port you are using at the rate you want:
+        myPort = new Serial(this, Serial.list()[2], 9600);
+      }
     }
   }
 }
