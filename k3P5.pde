@@ -248,6 +248,8 @@ void setup() {
     e.printStackTrace();
     exit();
   }
+  
+  printArray(listFileLayouts());
 }
 
 void draw() {
@@ -336,10 +338,31 @@ void InitListSerialPort() {
   
   String[] serialPortList = Serial.list();
   for (int i = 0; i < serialPortList.length; i++) {
-    dropdownListSerialPort.addItem(serialPortList[i], i);  
+    dropdownListSerialPort.addItem(serialPortList[i], i);    
   }
   dropdownListSerialPort.close();
 }
+
+String[] listFileLayouts() {
+  FilenameFilter layoutFilter = new FilenameFilter() {
+    @Override public boolean accept(final File dir, String name) {
+      name = name.toLowerCase();
+      return name.endsWith(".layout");
+    }
+  };
+
+  String path = sketchPath() + "/layouts";
+  println(path);
+  File file = new File(path);
+  if (file.isDirectory()) {
+    String names[] = file.list(layoutFilter);
+    return names;
+  } else {
+    // If it's not a directory
+    return null;
+  }
+}
+
 
 /*
 ** Event
