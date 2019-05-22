@@ -30,7 +30,7 @@ final int REGULAR_DELAY_KEY_REPEAT = 200;
 ControlP5 cp5;
 Textarea mainTextarea;
 Textfield mTextfieldLayout;
-
+DropdownList dropdownListSerialPort;
 
 /*
 ** Settings variable
@@ -182,14 +182,14 @@ void setup() {
     ;
 
   cp5.addToggle("Emulate")
-    .setPosition(185, 20)
+    .setPosition(365, 20)
     .setSize(50, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     ;
 
   cp5.addToggle("Layout3D")
-    .setPosition(240, 20)
+    .setPosition(420, 20)
     .setSize(50, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
@@ -217,6 +217,14 @@ void setup() {
     .setPosition(365, 60)
     .setSize(50, 20)
     ;
+    
+  dropdownListSerialPort = cp5.addDropdownList("ListSerialPort")
+          .setPosition(185, 20)
+          .setSize(175, 120)
+          .setItemHeight(20)
+          ;
+          
+  InitListSerialPort();
 
   mainTextarea = cp5.addTextarea("mainTextArea")
     .setPosition(760, 120)
@@ -318,6 +326,18 @@ void cleanKeysPress() {
   }
 }
 
+
+void InitListSerialPort() {
+  dropdownListSerialPort.setBarHeight(20);
+  String[] serialPortList = Serial.list();
+  for (int i = 0; i < serialPortList.length; i++) {
+    dropdownListSerialPort.addItem(serialPortList[i], i);  
+  }
+  dropdownListSerialPort.close();
+  dropdownListSerialPort.setType(1);
+  dropdownListSerialPort.getCaptionLabel().set(serialPortList[1]);
+}
+
 /*
 ** Event
  */
@@ -386,6 +406,27 @@ void keyPressed() {
     }
   }
 }
+
+
+void controlEvent(ControlEvent theEvent) {
+  // DropdownList is of type ControlGroup.
+  // A controlEvent will be triggered from inside the ControlGroup class.
+  // therefore you need to check the originator of the Event with
+  // if (theEvent.isGroup())
+  // to avoid an error message thrown by controlP5.
+
+  if (theEvent.isGroup()) {
+    // check if the Event was triggered from a ControlGroup
+    println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
+  }
+  else if (theEvent.isController()) {
+    
+    if (theEvent.isFrom(cp5.getController("ListSerialPort"))) {
+      println("codeListSerialPort: "+ (int) theEvent.getController().getValue());  
+    }
+  }
+}
+
 
 /*
  * ControlP5 Methods
