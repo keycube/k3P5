@@ -50,9 +50,9 @@ class State {
     rect(mX, mY, mWidth, mHeight);
     fill(mColorText);
     textAlign(CENTER);
-    textSize(24);
-    text(mTextSmall, mX + 120, mY + 35);
-    textSize(48);
-    text(mTextBig, mX + 120, mY + 80);
+    textSize(12);
+    text(mTextSmall, mX + mWidth/2, mY + mHeight/3);
+    textSize(16);
+    text(mTextBig, mX + mWidth/2, mY + mHeight/1.25);
   }
 }

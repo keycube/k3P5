@@ -155,12 +155,10 @@ void setLayout(int x, int y) {
 }
 
 void setup() {
-  size(1260, 620, P3D);
-  surface.setAlwaysOnTop(true);
+  size(510, 750, P3D);
   noStroke();
-
-  imgLogo = loadImage("logo.png");
-
+  surface.setAlwaysOnTop(true);
+  
   keys = new Key[5][16];
 
   matrixOffSetX2D = new int[5];
@@ -229,19 +227,19 @@ void setup() {
           
   InitListSerialPort();
 
-  mainTextarea = cp5.addTextarea("mainTextArea")
-    .setPosition(760, 120)
-    .setSize(490, 490)
+  mainTextarea = cp5.addTextarea("textAreaConsole")
+    .setPosition(10, 620)
+    .setSize(490, 120)
     .setFont(createFont("arial", 15))
     .setLineHeight(14)
-    .setColor(color(32))
-    .setColorBackground(240)
+    .setColor(255)
+    .setColorBackground(0)
     ;
   
   frameRate(60);
   cp5.addFrameRate().setInterval(10).setPosition(10, 10);
 
-  state = new State(510, 10, 240, 100, 160);
+  state = new State(420, 60, 70, 40, 128);
 
   try {
     robot = new Robot();
@@ -260,17 +258,12 @@ void draw() {
 
   noStroke();
   fill(160);
-  image(imgLogo, 10, 10, 100, 100); // logo
 
   rect(120, 10, 380, 100); // settings
   state.display(); // state
   fill(160);
-  rect(760, 10, 490, 100); // instruction
-  rect( 10, 120, 490, 490); // layout
-  rect(510, 120, 240, 240); // 3D view
-  rect(510, 370, 240, 240); // trackpad
-  // rect(760, 120, 490, 490); // text
-
+  rect(10, 120, 490, 490); // layout
+  
   ortho();
 
   for (int i = 0; i < MATRIX_NUMBER; i++) {
