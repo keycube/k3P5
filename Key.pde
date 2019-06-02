@@ -30,8 +30,8 @@ class Key {
     mX3D = x3d + mWidth / 2;
     mY3D = y3d + mHeight / 2;
     
-    mWidth = 30;
-    mHeight = 30;
+    mWidth = 36;
+    mHeight = 36;
     mColorDefault = colorDefault;
     
     mPress = false;

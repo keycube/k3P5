@@ -30,7 +30,6 @@ final int REGULAR_DELAY_KEY_REPEAT = 200;
 ControlP5 cp5;
 Textarea mainTextarea;
 Textfield mTextfieldLayout;
-DropdownList dropdownListSerialPort;
 Toggle toggleListening;
 
 /*
@@ -155,10 +154,10 @@ void setLayout(int x, int y) {
 }
 
 void setup() {
-  size(510, 750, P3D);
+  size(492, 750, P3D);
   noStroke();
   surface.setAlwaysOnTop(true);
-  
+
   keys = new Key[5][16];
 
   matrixOffSetX2D = new int[5];
@@ -170,100 +169,161 @@ void setup() {
   matrixRotationY = new int[5];
   matrixRotationZ = new int[5];
 
-  setLayout(95, 205);
+  setLayout(86, 205);
 
   cp5 = new ControlP5(this);
 
-  toggleListening = cp5.addToggle("Listening")
-    .setPosition(130, 20)
-    .setSize(50, 20)
-    .setValue(false)
-    .setMode(ControlP5.SWITCH)
-    ;
-
-  cp5.addToggle("Emulate")
-    .setPosition(365, 20)
-    .setSize(50, 20)
-    .setValue(false)
-    .setMode(ControlP5.SWITCH)
-    ;
-
-  cp5.addToggle("Layout3D")
-    .setPosition(420, 20)
-    .setSize(50, 20)
-    .setValue(false)
-    .setMode(ControlP5.SWITCH)
-    ;
-
-  cp5.addToggle("Mapping")
-    .setPosition(130, 60)
-    .setSize(50, 20)
-    .setValue(false)
-    .setMode(ControlP5.SWITCH)
-    ;
-
-  mTextfieldLayout = cp5.addTextfield("")
-    .setPosition(185, 60)
-    .setSize(120, 20)
-    .setText("default")
-    ;
-
-  cp5.addButton("Save")
-    .setPosition(310, 60)
-    .setSize(50, 20)
-    ;
-
-  cp5.addButton("Load")
-    .setPosition(365, 60)
-    .setSize(50, 20)
+  /*
+  PORT
+  */
+  
+  Group groupPort = cp5.addGroup("Port")
+    .setBackgroundColor(128)
+    .setBackgroundHeight(44)
     ;
     
-  dropdownListSerialPort = cp5.addDropdownList("ListSerialPort")
-          .setPosition(185, 20)
-          .setSize(175, 120)
-          .setItemHeight(20)
-          .setBarHeight(20)  
-          ;
-          
-  InitListSerialPort();
+  cp5.addScrollableList("SerialPortList")
+     .setPosition(4, 4)
+     .setSize(256, 128)
+     .setBarHeight(24)
+     .setItemHeight(24)
+     .addItems(Serial.list())
+     .moveTo(groupPort)
+     .close()
+     ;
+    
+  toggleListening = cp5.addToggle("Listening")
+    .setPosition(264, 4)
+    .setSize(48, 24)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    .moveTo(groupPort)
+    ;
+  
+  /*
+  LAYOUT
+  */
+  
+  Group groupLayout = cp5.addGroup("Layout")
+    .setBackgroundColor(128)
+    .setBackgroundHeight(72)
+    ;
+    
+  cp5.addScrollableList("LayoutFileList")
+     .setPosition(4, 4)
+     .setSize(256, 128)
+     .setBarHeight(24)
+     .setItemHeight(24)
+     .addItems(getLayoutFileList())
+     .moveTo(groupLayout)
+     .close()
+     ;
+     
+  mTextfieldLayout = cp5.addTextfield("")
+    .setPosition(264, 4)
+    .setSize(128, 24)
+    .setText("default")
+    .moveTo(groupLayout)
+    ;
+    
+  cp5.addButton("Load")
+    .setPosition(396, 4)
+    .setSize(40, 24)
+    .moveTo(groupLayout)
+    ;
+    
+  cp5.addButton("Save")
+    .setPosition(440, 4)
+    .setSize(40, 24)
+    .moveTo(groupLayout)
+    ;
+  
+  cp5.addToggle("Mapping")
+    .setPosition(4, 32)
+    .setSize(48, 24)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    .moveTo(groupLayout)
+    ;
+    
+  cp5.addToggle("Emulate")
+    .setPosition(56, 32)
+    .setSize(48, 24)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    .moveTo(groupLayout)
+    ;
+    
+  state = new State(108, 32, 372, 24, #00305B);
+  state.pre(); // use cc.post(); to draw on top of existing controllers.
+  
+  groupLayout.addCanvas(state);
+  
+  /*
+  VIEWER
+  */
+  
+  Group groupViewer = cp5.addGroup("Viewer")
+    .setBackgroundColor(128)
+    .setBackgroundHeight(484)
+    ;
+    
+  cp5.addToggle("Viewer3D")
+    .setPosition(4, 4)
+    .setSize(50, 20)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    .moveTo(groupViewer)
+    ;
 
+  /*
+  CONSOLE
+  */
+  
+  Group groupConsole = cp5.addGroup("Console")
+    .setBackgroundHeight(128)
+    ;
+    
   mainTextarea = cp5.addTextarea("textAreaConsole")
-    .setPosition(10, 620)
-    .setSize(490, 120)
+    .setPosition(0, 0)
+    .setSize(484, 128)
     .setFont(createFont("arial", 15))
     .setLineHeight(14)
     .setColor(255)
     .setColorBackground(0)
+    .moveTo(groupConsole)
     ;
-  
-  frameRate(60);
-  cp5.addFrameRate().setInterval(10).setPosition(10, 10);
 
-  state = new State(420, 60, 70, 40, 128);
+  frameRate(30);
+  cp5.addFrameRate().setInterval(10).setPosition(10, 10);
 
   try {
     robot = new Robot();
-  } 
+  }
   catch (Exception e) {
     //Uh-oh...
     e.printStackTrace();
     exit();
   }
-  
-  printArray(listFileLayouts());
+
+  cp5.addAccordion("accordionMain")
+    .setPosition(4, 4)
+    .setWidth(484)
+    .setMinItemHeight(32)
+    .addItem(groupPort)
+    .addItem(groupLayout)
+    .addItem(groupViewer)
+    .addItem(groupConsole)
+    .setCollapseMode(Accordion.MULTI)
+    ;
 }
 
 void draw() {
   background(200);
-
-  noStroke();
-  fill(160);
-
-  rect(120, 10, 380, 100); // settings
-  state.display(); // state
-  fill(160);
-  rect(10, 120, 490, 490); // layout
   
+  fill(160);
+  rect(4, 120, 484, 490); // layout
+
   ortho();
 
   for (int i = 0; i < MATRIX_NUMBER; i++) {
@@ -327,19 +387,7 @@ void cleanKeysPress() {
   }
 }
 
-
-void InitListSerialPort() {
-  // List all the available serial ports:
-  printArray(Serial.list());
-  
-  String[] serialPortList = Serial.list();
-  for (int i = 0; i < serialPortList.length; i++) {
-    dropdownListSerialPort.addItem(serialPortList[i], i);    
-  }
-  dropdownListSerialPort.close();
-}
-
-String[] listFileLayouts() {
+String[] getLayoutFileList() {
   FilenameFilter layoutFilter = new FilenameFilter() {
     @Override public boolean accept(final File dir, String name) {
       name = name.toLowerCase();
@@ -382,7 +430,7 @@ void mousePressed() {
           iPressI = i;
           iPressJ = j;
           keys[i][j].setCharacter(keys[i][j].getCode());
-          state.setState(keys[i][j].getColorBackground(), keys[i][j].getCode(), "listen");
+          state.setState(keys[i][j].getColorBackground(), "listen " + keys[i][j].getCode());
         }
         return;
       }
@@ -440,11 +488,11 @@ void controlEvent(ControlEvent theEvent) {
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
     println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
-  }
-  else if (theEvent.isController()) {
-    
-    if (theEvent.isFrom(cp5.getController("ListSerialPort"))) {
-      portNumber = (int) theEvent.getController().getValue();  
+  } else if (theEvent.isController()) {
+
+    if (theEvent.isFrom(cp5.getController("SerialPortList"))) {
+      portNumber = (int) theEvent.getController().getValue();
+      println("portNumber: " + portNumber);
     }
   }
 }
@@ -457,8 +505,7 @@ void controlEvent(ControlEvent theEvent) {
 void Listening(boolean theFlag) {
   if (portNumber == -1) {
     toggleListening.setValue(false);
-  }
-  else {
+  } else {
     mListening = theFlag;
     if (mListening) {
       if (myPort == null) {
@@ -469,7 +516,7 @@ void Listening(boolean theFlag) {
   }
 }
 
-void Layout3D(boolean theFlag) {
+void Viewer3D(boolean theFlag) {
   mProjection3D = theFlag;
   for (int i = 0; i < MATRIX_NUMBER; i++) {
     for (int j = 0; j < KEYS_NUMBER_PER_MATRIX; j++) {

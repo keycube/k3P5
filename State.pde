@@ -1,28 +1,24 @@
-class State {
+class State extends Canvas {
   private int mX, mY;
   private int mWidth, mHeight;
   private color mColorDefault;
   private color mColorText; 
   private color mColorActual;
   
-  private String mTextBig;
-  private String mTextSmall;
+  private String mText;
   
-
   /*
    * SETTERS
    */
 
-  public void setState(color colorActual, String textBig, String textSmall) {
+  public void setState(color colorActual, String text) {
     mColorActual = colorActual;
-    mTextBig = textBig;
-    mTextSmall = textSmall;
+    mText = text;
   }
   
   public void reset() {
     mColorActual = mColorDefault;
-    mTextBig = "";
-    mTextSmall = "";
+    mText = "";
   }
 
   /*
@@ -36,23 +32,21 @@ class State {
     mHeight = _height;
     mColorDefault = colorDefault;
     mColorActual = colorDefault;
-    mTextBig = "";
-    mTextSmall = "";
+    mText = "";
   }
 
-  /*
-   * MISC
-   */
-   
-  void display() {
-    noStroke();
-    fill(mColorActual);
-    rect(mX, mY, mWidth, mHeight);
-    fill(mColorText);
-    textAlign(CENTER);
-    textSize(12);
-    text(mTextSmall, mX + mWidth/2, mY + mHeight/3);
-    textSize(16);
-    text(mTextBig, mX + mWidth/2, mY + mHeight/1.25);
+  public void setup(PGraphics pg) {
+  }
+  
+  public void update(PApplet p) {
+  }
+  
+  public void draw(PGraphics pg) {
+    pg.fill(mColorActual);
+    pg.rect(mX, mY, mWidth, mHeight);
+    pg.fill(mColorText);
+    pg.textAlign(CENTER);
+    pg.textSize(12);
+    pg.text(mText, mX + mWidth/2, mY + mHeight/2);
   }
 }
