@@ -46,7 +46,7 @@ class State extends Canvas {
     pg.rect(mX, mY, mWidth, mHeight);
     pg.fill(mColorText);
     pg.textAlign(CENTER);
-    pg.textSize(12);
-    pg.text(mText, mX + mWidth/2, mY + mHeight/2);
+    pg.textSize(14);
+    pg.text(mText, mX + mWidth/2, mY + mHeight/1.4);
   }
 }
