@@ -1,8 +1,13 @@
 /*
 ** Import 
  */
+
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
+
+/*
+** Interface
+ */
 
 interface ViewerCallback {
   void onSelect(Key k);
@@ -32,6 +37,8 @@ class Viewer extends Controller<Viewer> {
   private Key keyHover;
   private Key keyPress;
 
+  Robot robot = null;
+
   long timer;
 
   int currentKeyPressedColor = -1;
@@ -39,9 +46,37 @@ class Viewer extends Controller<Viewer> {
   int previousKeyPressedColor = -1;
   int previousKeyPressedNumber = -1;
 
+  // Constructor
   Viewer(ControlP5 cp5, String name) {
     super(cp5, name);
     setSize(484, 484);
+
+    try {
+      robot = new Robot();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      exit();
+    }
+  }
+
+  // Draw
+  public void draw(PGraphics p) {
+    for (int i = 0; i < MATRICES_COUNT; i++) {
+      matrices[i].draw();
+    }
+
+    if (millis() > timer) {
+      timer = millis() + REGULAR_DELAY_KEY_REPEAT;
+      //println("timer x 5s");
+      if ((currentKeyPressedColor != -1) && (currentKeyPressedNumber != -1)) {
+        sMainText += matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCharacter();
+        mainTextarea.setText(sMainText);
+        if (emulate) {
+          robot.keyPress(matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCodeRobot());
+        }
+      }
+    }
   }
 
   public Viewer setMatrices() {
@@ -83,93 +118,6 @@ class Viewer extends Controller<Viewer> {
     return this;
   }
 
-  float getAbsoluteX(ControllerInterface c) {
-    if (c.getParent().getName() == "default") {
-      return c.getPosition()[0];
-    }
-    return getAbsoluteX(c.getParent()) + c.getPosition()[0];
-  }
-
-  float getAbsoluteY(ControllerInterface c) {
-    if (c.getParent().getName() == "default") {
-      return c.getPosition()[1];
-    }
-    return getAbsoluteY(c.getParent()) + c.getPosition()[1];
-  }
-
-  public void draw(PGraphics p) {
-    for (int i = 0; i < MATRICES_COUNT; i++) {
-      matrices[i].draw();
-    }
-
-    if (millis() > timer) {
-      timer = millis() + REGULAR_DELAY_KEY_REPEAT;
-      //println("timer x 5s");
-      if ((currentKeyPressedColor != -1) && (currentKeyPressedNumber != -1)) {
-        sMainText += matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCharacter();
-        mainTextarea.setText(sMainText);
-        if (emulate) {
-          robot.keyPress(matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCodeRobot());
-        }
-      }
-    }
-  }
-
-  void setMapping(boolean b) {
-    mapping = b;
-  }
-
-  void setEmulate(boolean b) {
-    emulate = b;
-  }
-
-  public boolean isMapping() {
-    return mapping;
-  }
-
-
-  void onClick() {
-    if (!mapping)
-      return;
-
-    if (keyHover == null) {
-      return;
-    }
-
-    if (keyPress != null) {
-      keyPress.togglePress();
-      if (keyPress.equals(keyHover)) {
-        callback.onSelect(keyPress);
-        keyPress = null;
-        return;
-      }
-    }
-
-    keyPress = keyHover;
-    keyPress.togglePress();
-    keyPress.setCharacter(keyPress.getCode());
-    keyPress.setCodeASCII(-1);
-    callback.onSelect(keyPress);
-  }
-
-
-  void onMove() {
-    keyHover = null;
-    for (int i = 0; i < MATRICES_COUNT; i++) {
-      Key k = matrices[i].onMove((mouseX - getAbsoluteX(this)), (mouseY - getAbsoluteY(this)));
-      if (k != null) {
-        keyHover = k;
-      }
-    }
-  }
-
-
-  public void setProjection3d(boolean b) {
-    for (int i = 0; i < MATRICES_COUNT; i++) {
-      matrices[i].setProjection3d(b);
-    }
-  }
-
   public void loadLayout(String[] data) {
     for (int i = 0; i < data.length; i++) {
       String[] line = data[i].split("\t");
@@ -191,20 +139,11 @@ class Viewer extends Controller<Viewer> {
     saveStrings(fileName, data);
   }
 
-  public void setCallback(ViewerCallback c) {
-    callback = c;
-    println("setCallback c = " + callback);
-  }
-
   public void clean() {
     for (int i = 0; i < MATRICES_COUNT; i++) {
       matrices[i].clean();
     }
     keyPress = null;
-  }
-
-  public Key getKeyPress() {
-    return keyPress;
   }
 
   public void lookForKey(String s) {
@@ -315,5 +254,93 @@ class Viewer extends Controller<Viewer> {
       }
     }
     mainTextarea.setText(sMainText);
+  }
+
+  /*
+  ** Get
+   */
+
+  private float getAbsoluteX(ControllerInterface c) {
+    if (c.getParent().getName() == "default") {
+      return c.getPosition()[0];
+    }
+    return getAbsoluteX(c.getParent()) + c.getPosition()[0];
+  }
+
+  private float getAbsoluteY(ControllerInterface c) {
+    if (c.getParent().getName() == "default") {
+      return c.getPosition()[1];
+    }
+    return getAbsoluteY(c.getParent()) + c.getPosition()[1];
+  }
+
+  public boolean isMapping() {
+    return mapping;
+  }
+
+  public Key getKeyPress() {
+    return keyPress;
+  }
+
+  /*
+  ** Set
+   */
+
+  void setMapping(boolean b) {
+    mapping = b;
+  }
+
+  void setEmulate(boolean b) {
+    emulate = b;
+  }
+
+  public void setProjection3d(boolean b) {
+    for (int i = 0; i < MATRICES_COUNT; i++) {
+      matrices[i].setProjection3d(b);
+    }
+  }
+
+  public void setCallback(ViewerCallback c) {
+    callback = c;
+  }
+
+
+  /*
+  ** Event
+   */
+
+  void onClick() {
+    if (!mapping)
+      return;
+
+    if (keyHover == null) {
+      return;
+    }
+
+    if (keyPress != null) {
+      keyPress.togglePress();
+      if (keyPress.equals(keyHover)) {
+        callback.onSelect(keyPress);
+        keyPress = null;
+        return;
+      }
+    }
+
+    keyPress = keyHover;
+    keyPress.togglePress();
+    keyPress.setCharacter(keyPress.getCode());
+    keyPress.setCodeASCII(-1);
+    callback.onSelect(keyPress);
+  }
+
+
+  void onMove() {
+    keyHover = null;
+    for (int i = 0; i < MATRICES_COUNT; i++) {
+      Key k = matrices[i].onMove((mouseX - getAbsoluteX(this)), (mouseY - getAbsoluteY(this)));
+      if (k != null) {
+        keyHover = k;
+      }
+    }
   }
 }

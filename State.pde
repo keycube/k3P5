@@ -1,30 +1,14 @@
 class State extends Canvas {
+
   private int mX, mY;
   private int mWidth, mHeight;
   private color mColorDefault;
   private color mColorText; 
   private color mColorActual;
-  
+
   private String mText;
-  
-  /*
-   * SETTERS
-   */
 
-  public void setState(color colorActual, String text) {
-    mColorActual = colorActual;
-    mText = text;
-  }
-  
-  public void reset() {
-    mColorActual = mColorDefault;
-    mText = "";
-  }
-
-  /*
-   * Constructor
-   */
-   
+  // Constructor
   State(int x, int y, int _width, int _height, color colorDefault) {
     mX = x;
     mY = y;
@@ -35,12 +19,7 @@ class State extends Canvas {
     mText = "";
   }
 
-  public void setup(PGraphics pg) {
-  }
-  
-  public void update(PApplet p) {
-  }
-  
+  // Draw
   public void draw(PGraphics pg) {
     pg.fill(mColorActual);
     pg.rect(mX, mY, mWidth, mHeight);
@@ -48,5 +27,19 @@ class State extends Canvas {
     pg.textAlign(CENTER);
     pg.textSize(14);
     pg.text(mText, mX + mWidth/2, mY + mHeight/1.4);
+  }
+  
+  public void reset() {
+    mColorActual = mColorDefault;
+    mText = "";
+  }
+  
+  /*
+  ** Set
+   */
+
+  public void setState(color colorActual, String text) {
+    mColorActual = colorActual;
+    mText = text;
   }
 }

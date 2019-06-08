@@ -21,12 +21,12 @@ class Matrix {
 
   private Key[] keys;
 
+  // Constructor
   Matrix(int disposition, color colorFill, String prefix, 
     int offset2dX, int offset2dY, int offset3dX, int offset3dY, 
     int rotation3dX, int rotation3dY, int rotation3dZ) {
 
     // set matrix variables
-
     this.offset2dX = offset2dX;
     this.offset2dY = offset2dY;
 
@@ -41,11 +41,10 @@ class Matrix {
 
     // init keys
     keys = new Key[16];
-
     int spacing = 40;
     int offsetCenter = 60;
-
     int x3D, y3D;
+
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
         switch (disposition) {
@@ -85,6 +84,7 @@ class Matrix {
     }
   }
 
+  // Draw
   public void draw() {
     pushMatrix();
 
@@ -103,6 +103,36 @@ class Matrix {
     popMatrix();
   }
 
+  public void clean() {
+    for (int i = 0; i < KEYS_COUNT; i++) {
+      keys[i].setPress(false);
+    }
+  }
+
+  /*
+  ** Get
+   */
+
+  public Key[] getKeys() {
+    return keys;
+  }
+
+
+  /*
+  ** Set
+   */
+
+  public void setProjection3d(boolean b) {
+    projection3d = b;
+    for (int i = 0; i < KEYS_COUNT; i++) {
+      keys[i].setProjection3d(projection3d);
+    }
+  }
+
+  /*
+  ** Event
+   */
+
   public Key onMove(float relativeMouseX, float relativeMouseY) {
     Key k = null;
     for (int i = 0; i < KEYS_COUNT; i++) {
@@ -111,22 +141,5 @@ class Matrix {
       }
     }
     return k;
-  }
-
-  public void setProjection3d(boolean b) {
-    projection3d = b;
-    for (int i = 0; i < KEYS_COUNT; i++) {
-      keys[i].setProjection3d(projection3d);
-    }
-  }
-  
-  public Key[] getKeys() {
-    return keys;
-  }
-  
-  public void clean() {
-    for (int i = 0; i < KEYS_COUNT; i++) {
-      keys[i].setPress(false);
-    }
   }
 }

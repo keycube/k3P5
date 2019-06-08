@@ -22,6 +22,7 @@ class Key {
   
   color colorFont = 0;
 
+  // Constructor
   Key(int x, int y, int x3d, int y3d, int offSetX, int offSetY, color colorDefault, String code) {
     mX2D = x + mWidth/2;
     mY2D = y + mHeight/2;
@@ -45,68 +46,8 @@ class Key {
     mOffsetX = offSetX;
     mOffsetY = offSetY;
   }
-
-  /*
-  ** GETTERS
-   */
-
-  boolean isPressed() {
-    return mPress;
-  }
-
-  String getCode() {
-    return mCodeK3;
-  }
-
-  color getColorBackground() {
-    return mColorDefault;
-  }
-
-  String getCharacter() {
-    return mText;
-  }
-
-  int getCodeRobot() {
-    return mCodeRobot;
-  }
-
-  int getCodeASCII() {
-    return mCodeASCII;
-  }
-
-  /*
-  ** SETTERS
-   */
-
-  void setCharacter(String s) {
-    mText = s;
-  }
-
-  void setPress(boolean b) {
-    mPress = b;
-  }
-
-  void setCodeRobot(int i) {
-    mCodeRobot = i;
-  }
-
-  void setCodeASCII(int i) {
-    mCodeASCII = i;
-  }
-
-  void setProjection3d(boolean b) {
-    mProjection3D = b;
-  }
-
-  /*
-  ** MISC
-   */
-
-  boolean togglePress() {
-    mPress = !mPress;
-    return mPress;
-  }
-
+  
+  // Draw
   public void draw() {
     
     if (mPress) {
@@ -140,9 +81,69 @@ class Key {
     }
 
     hint(ENABLE_DEPTH_TEST);
-
     rectMode(CORNER);
   }
+  
+  boolean togglePress() {
+    mPress = !mPress;
+    return mPress;
+  }
+
+  /*
+  ** Get
+   */
+
+  boolean isPressed() {
+    return mPress;
+  }
+
+  String getCode() {
+    return mCodeK3;
+  }
+
+  color getColorBackground() {
+    return mColorDefault;
+  }
+
+  String getCharacter() {
+    return mText;
+  }
+
+  int getCodeRobot() {
+    return mCodeRobot;
+  }
+
+  int getCodeASCII() {
+    return mCodeASCII;
+  }
+
+  /*
+  ** Set
+   */
+
+  void setCharacter(String s) {
+    mText = s;
+  }
+
+  void setPress(boolean b) {
+    mPress = b;
+  }
+
+  void setCodeRobot(int i) {
+    mCodeRobot = i;
+  }
+
+  void setCodeASCII(int i) {
+    mCodeASCII = i;
+  }
+
+  void setProjection3d(boolean b) {
+    mProjection3D = b;
+  }
+
+  /*
+  ** Event
+   */
 
   public boolean onMove(float relativeMouseX, float relativeMouseY) {
     if ((relativeMouseX - mOffsetX) >= mX2D - mWidth/2 && (relativeMouseX - mOffsetX) <= mX2D + mWidth/2 && 
