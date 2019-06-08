@@ -4,17 +4,12 @@
 import controlP5.*;
 import processing.serial.*;
 
-import java.awt.Robot;
-import java.awt.event.KeyEvent;
-
 /*
 ** Const
  */
 
 final String LAYOUT_EXTENSION = ".layout";
 
-final int FIRST_DELAY_KEY_REPEAT = 500;
-final int REGULAR_DELAY_KEY_REPEAT = 200;
 
 /*
 ** ControlP5 variable
@@ -28,7 +23,6 @@ Toggle toggleListening;
 ** Settings variable
  */
 boolean mListening = false;
-boolean mEmulate = false;
 
 String sMainText = "";
 
@@ -45,6 +39,9 @@ Robot robot = null;
 
 Viewer viewer;
 
+int windowHeight[];
+boolean groupOpen[];
+
 class ToViewerCallback implements ViewerCallback {
   
   void onSelect(Key k) {
@@ -59,10 +56,14 @@ class ToViewerCallback implements ViewerCallback {
 void setup() {
   size(492, 764, P3D);
   surface.setAlwaysOnTop(true);
+  surface.setResizable(true);
   
   smooth();
   PFont font = createFont("Arial", 20, true);
   textFont(font);
+  
+  windowHeight = new int[4]; // number of accordion group (Port, Layout, Viewer, Console)
+  groupOpen = new boolean[4];
   
   /*
   ControlP5
@@ -102,7 +103,8 @@ void setup() {
   */
   
   Group groupConsole = cp5.addGroup("Console")
-    .setBackgroundHeight(160)
+    .setBackgroundHeight(128)
+    .setId(3)
     ;
     
   mainTextarea = cp5.addTextarea("textAreaConsole")
@@ -122,6 +124,7 @@ void setup() {
   Group groupViewer = cp5.addGroup("Viewer")
     .setBackgroundColor(160)
     .setBackgroundHeight(484)
+    .setId(2)
     ;
     
   viewer = new Viewer(cp5, "ViewerController").setPosition(0, 0).moveTo(groupViewer).setMatrices();
@@ -134,6 +137,7 @@ void setup() {
   Group groupLayout = cp5.addGroup("Layout")
     .setBackgroundColor(160)
     .setBackgroundHeight(64)
+    .setId(1)
     ;
      
   mTextfieldLayout = cp5.addTextfield("")
@@ -203,6 +207,7 @@ void setup() {
   Group groupPort = cp5.addGroup("Port")
     .setBackgroundColor(160)
     .setBackgroundHeight(40)
+    .setId(0)
     ;
     
   cp5.addScrollableList("SerialPortList")
@@ -251,7 +256,18 @@ void setup() {
     
     .open()
     ;
-
+    
+  windowHeight[0] = groupPort.getBackgroundHeight();
+  windowHeight[1] = groupLayout.getBackgroundHeight();
+  windowHeight[2] = groupViewer.getBackgroundHeight();
+  windowHeight[3] = groupConsole.getBackgroundHeight();
+  groupOpen[0] = true;
+  groupOpen[1] = true;
+  groupOpen[2] = true;
+  groupOpen[3] = true;
+  
+  reSizeWindow();
+  
   try {
     robot = new Robot();
   }
@@ -259,6 +275,16 @@ void setup() {
     e.printStackTrace();
     exit();
   }
+}
+
+void reSizeWindow() {
+  int currentHeight = 0;
+  for (int i = 0; i < windowHeight.length; i++) {
+    if (groupOpen[i]) {
+      currentHeight += windowHeight[i];
+    }
+  }
+  surface.setSize(492, currentHeight + 36 + 4 + 8); // + barHeight * 4 + barMargin * 4 + windowMargin * 2 
 }
 
 void draw() {
@@ -275,20 +301,6 @@ void draw() {
       }
     }
   }
-
-  /*
-  if (millis() > timer) {
-    timer = millis() + REGULAR_DELAY_KEY_REPEAT;
-    //println("timer x 5s");
-    if ((currentKeyPressedColor != -1) && (currentKeyPressedNumber != -1)) {
-      sMainText += keys[currentKeyPressedColor][currentKeyPressedNumber].getCharacter();
-      mainTextarea.setText(sMainText);
-      if (mEmulate) {
-        robot.keyPress(keys[currentKeyPressedColor][currentKeyPressedNumber].getCodeRobot());
-      }
-    }
-  }
-  */
 }
 
 String[] getLayoutFileList() {
@@ -366,7 +378,10 @@ void controlEvent(ControlEvent theEvent) {
 
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
-    println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
+    println("event from group : "+theEvent.getGroup().getValue());
+    int id = theEvent.getGroup().getId();
+    groupOpen[id] = !groupOpen[id];
+    reSizeWindow();
   } else if (theEvent.isController()) {
 
     if (theEvent.isFrom(cp5.getController("SerialPortList"))) {
@@ -402,7 +417,7 @@ void Projection3d(boolean theFlag) {
 }
 
 void Emulate(boolean theFlag) {
-  mEmulate = theFlag;
+  viewer.setEmulate(theFlag);
 }
 
 void Mapping(boolean theFlag) {

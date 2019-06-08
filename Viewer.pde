@@ -1,3 +1,9 @@
+/*
+** Import 
+ */
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
+
 interface ViewerCallback {
   void onSelect(Key k);
 }
@@ -8,6 +14,9 @@ class Viewer extends Controller<Viewer> {
 
   private final int MATRICES_COUNT = 5;
 
+  private final int FIRST_DELAY_KEY_REPEAT = 500;
+  private final int REGULAR_DELAY_KEY_REPEAT = 100;
+
   private final int WHITE = 0;
   private final int BLUE = 1;
   private final int RED = 2;
@@ -17,13 +26,14 @@ class Viewer extends Controller<Viewer> {
 
   private Matrix[] matrices;
 
-  private boolean mapping;
+  private boolean mapping = false;
+  private boolean emulate = false;
 
   private Key keyHover;
   private Key keyPress;
-  
+
   long timer;
-  
+
   int currentKeyPressedColor = -1;
   int currentKeyPressedNumber = -1;
   int previousKeyPressedColor = -1;
@@ -87,15 +97,30 @@ class Viewer extends Controller<Viewer> {
     return getAbsoluteY(c.getParent()) + c.getPosition()[1];
   }
 
-
   public void draw(PGraphics p) {
     for (int i = 0; i < MATRICES_COUNT; i++) {
       matrices[i].draw();
+    }
+
+    if (millis() > timer) {
+      timer = millis() + REGULAR_DELAY_KEY_REPEAT;
+      //println("timer x 5s");
+      if ((currentKeyPressedColor != -1) && (currentKeyPressedNumber != -1)) {
+        sMainText += matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCharacter();
+        mainTextarea.setText(sMainText);
+        if (emulate) {
+          robot.keyPress(matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCodeRobot());
+        }
+      }
     }
   }
 
   void setMapping(boolean b) {
     mapping = b;
+  }
+
+  void setEmulate(boolean b) {
+    emulate = b;
   }
 
   public boolean isMapping() {
@@ -114,12 +139,12 @@ class Viewer extends Controller<Viewer> {
     if (keyPress != null) {
       keyPress.togglePress();
       if (keyPress.equals(keyHover)) {
-       callback.onSelect(keyPress);
-       keyPress = null;
-       return;
+        callback.onSelect(keyPress);
+        keyPress = null;
+        return;
       }
     }
-    
+
     keyPress = keyHover;
     keyPress.togglePress();
     keyPress.setCharacter(keyPress.getCode());
@@ -177,11 +202,11 @@ class Viewer extends Controller<Viewer> {
     }
     keyPress = null;
   }
-  
+
   public Key getKeyPress() {
     return keyPress;
   }
-  
+
   public void lookForKey(String s) {
     int n = -1;
     try {
@@ -197,7 +222,7 @@ class Viewer extends Controller<Viewer> {
       case 'r':
         if (matrices[RED].getKeys()[n].togglePress()) {
           sMainText += matrices[RED].getKeys()[n].getCharacter();
-          if (mEmulate) {
+          if (emulate) {
             robot.keyPress(matrices[RED].getKeys()[n].getCodeRobot());
           }
 
@@ -205,7 +230,7 @@ class Viewer extends Controller<Viewer> {
           currentKeyPressedNumber = n;
           timer = millis() + FIRST_DELAY_KEY_REPEAT;
         } else {
-          if (mEmulate) {
+          if (emulate) {
             robot.keyRelease(matrices[RED].getKeys()[n].getCodeRobot());
           }
           currentKeyPressedColor = -1;
@@ -215,7 +240,7 @@ class Viewer extends Controller<Viewer> {
       case 'g':
         if (matrices[GREEN].getKeys()[n].togglePress()) {
           sMainText += matrices[GREEN].getKeys()[n].getCharacter();
-          if (mEmulate) {
+          if (emulate) {
             robot.keyPress(matrices[GREEN].getKeys()[n].getCodeRobot());
           }
 
@@ -223,7 +248,7 @@ class Viewer extends Controller<Viewer> {
           currentKeyPressedNumber = n;
           timer = millis() + FIRST_DELAY_KEY_REPEAT;
         } else {
-          if (mEmulate) {
+          if (emulate) {
             robot.keyRelease(matrices[GREEN].getKeys()[n].getCodeRobot());
           }
           currentKeyPressedColor = -1;
@@ -233,7 +258,7 @@ class Viewer extends Controller<Viewer> {
       case 'u': // instead of 'b'
         if (matrices[BLUE].getKeys()[n].togglePress()) {
           sMainText += matrices[BLUE].getKeys()[n].getCharacter();
-          if (mEmulate) {
+          if (emulate) {
             robot.keyPress(matrices[BLUE].getKeys()[n].getCodeRobot());
           }
 
@@ -241,7 +266,7 @@ class Viewer extends Controller<Viewer> {
           currentKeyPressedNumber = n;
           timer = millis() + FIRST_DELAY_KEY_REPEAT;
         } else {
-          if (mEmulate) {
+          if (emulate) {
             robot.keyRelease(matrices[BLUE].getKeys()[n].getCodeRobot());
           }
           currentKeyPressedColor = -1;
@@ -251,7 +276,7 @@ class Viewer extends Controller<Viewer> {
       case 'y':
         if (matrices[YELLOW].getKeys()[n].togglePress()) {
           sMainText += matrices[YELLOW].getKeys()[n].getCharacter();
-          if (mEmulate) {
+          if (emulate) {
             robot.keyPress(matrices[YELLOW].getKeys()[n].getCodeRobot());
           }
 
@@ -259,7 +284,7 @@ class Viewer extends Controller<Viewer> {
           currentKeyPressedNumber = n;
           timer = millis() + FIRST_DELAY_KEY_REPEAT;
         } else {
-          if (mEmulate) {
+          if (emulate) {
             robot.keyRelease(matrices[YELLOW].getKeys()[n].getCodeRobot());
           }
           currentKeyPressedColor = -1;
@@ -269,7 +294,7 @@ class Viewer extends Controller<Viewer> {
       case 'w':
         if (matrices[WHITE].getKeys()[n].togglePress()) {
           sMainText += matrices[WHITE].getKeys()[n].getCharacter();
-          if (mEmulate) {
+          if (emulate) {
             robot.keyPress(matrices[WHITE].getKeys()[n].getCodeRobot());
           }
 
@@ -277,7 +302,7 @@ class Viewer extends Controller<Viewer> {
           currentKeyPressedNumber = n;
           timer = millis() + FIRST_DELAY_KEY_REPEAT;
         } else {
-          if (mEmulate) {
+          if (emulate) {
             robot.keyRelease(matrices[WHITE].getKeys()[n].getCodeRobot());
           }
           currentKeyPressedColor = -1;
