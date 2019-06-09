@@ -140,7 +140,7 @@ void setup() {
     .setId(1)
     ;
 
-  mTextfieldLayout = cp5.addTextfield("")
+  mTextfieldLayout = cp5.addTextfield("LayoutFileName")
     .setPosition(264, 4)
     .setSize(128, 20)
     .setText("default")
@@ -168,23 +168,27 @@ void setup() {
     ;
 
   cp5.addToggle("Emulate")
+    .setBroadcast(false)
     .setPosition(56, 28)
     .setSize(48, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     .moveTo(groupLayout)
+    .setBroadcast(true)
     ;
 
   cp5.addToggle("Projection3d")
+    .setBroadcast(false)
     .setPosition(108, 28)
     .setSize(48, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     .moveTo(groupLayout)
+    .setBroadcast(true)
     ;
 
   state = new State(263, 28, 217, 24, color(48));
-  state.pre(); // use cc.post(); to draw on top of existing controllers.
+  state.post(); // use cc.pre(); to draw beyond existing controllers.
   groupLayout.addCanvas(state);
 
   cp5.addScrollableList("LayoutFileList")
@@ -267,18 +271,16 @@ void setup() {
   groupOpen[3] = true;
 
   reSizeWindow();
+  
+  cp5.getProperties().addSet("k3Set");
+  cp5.getProperties().move(cp5.getController("LayoutFileName"), "default", "k3Set");
+  cp5.getProperties().move(cp5.getController("Projection3d"), "default", "k3Set");
+  cp5.getProperties().move(cp5.getController("Emulate"), "default", "k3Set");
+  
+  cp5.loadProperties(("k3Set"));
 }
 
-void reSizeWindow() {
-  int currentHeight = 0;
-  for (int i = 0; i < windowHeight.length; i++) {
-    if (groupOpen[i]) {
-      currentHeight += windowHeight[i];
-    }
-  }
-  surface.setSize(492, currentHeight + 36 + 4 + 8); // + barHeight * 4 + barMargin * 4 + windowMargin * 2
-}
-
+// Draw
 void draw() {
   background(224);
   noStroke();
@@ -293,6 +295,16 @@ void draw() {
       }
     }
   }
+}
+
+void reSizeWindow() {
+  int currentHeight = 0;
+  for (int i = 0; i < windowHeight.length; i++) {
+    if (groupOpen[i]) {
+      currentHeight += windowHeight[i];
+    }
+  }
+  surface.setSize(492, currentHeight + 36 + 4 + 8); // + barHeight * 4 + barMargin * 4 + windowMargin * 2
 }
 
 String[] getLayoutFileList() {
@@ -404,11 +416,13 @@ void Listening(boolean theFlag) {
 // Toggle
 void Projection3d(boolean theFlag) {
   viewer.setProjection3d(theFlag);
+  cp5.saveProperties("k3Set", "k3Set");
 }
 
 // Toggle
 void Emulate(boolean theFlag) {
   viewer.setEmulate(theFlag);
+  cp5.saveProperties("k3Set", "k3Set");
 }
 
 // Toggle
@@ -419,10 +433,13 @@ void Mapping(boolean theFlag) {
 // Button
 public void Save() {
   viewer.saveLayout("layouts/" + mTextfieldLayout.getText() + LAYOUT_EXTENSION);
+  println("ButtonSave");
+  cp5.saveProperties("k3Set", "k3Set");
 }
 
 // Button
 public void Load() {
   String[] data = loadStrings("layouts/" + mTextfieldLayout.getText() + LAYOUT_EXTENSION);
   viewer.loadLayout(data);
+  cp5.saveProperties("k3Set", "k3Set");
 }
