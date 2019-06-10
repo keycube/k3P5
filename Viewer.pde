@@ -70,8 +70,8 @@ class Viewer extends Controller<Viewer> {
       timer = millis() + REGULAR_DELAY_KEY_REPEAT;
       //println("timer x 5s");
       if ((currentKeyPressedColor != -1) && (currentKeyPressedNumber != -1)) {
-        sMainText += matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCharacter();
-        mainTextarea.setText(sMainText);
+        textConsole += matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCharacter();
+        textAreaConsole.setText(textConsole);
         if (emulate) {
           robot.keyPress(matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCodeRobot());
         }
@@ -160,7 +160,7 @@ class Viewer extends Controller<Viewer> {
       switch (s.charAt(0)) {
       case 'r':
         if (matrices[RED].getKeys()[n].togglePress()) {
-          sMainText += matrices[RED].getKeys()[n].getCharacter();
+          textConsole += matrices[RED].getKeys()[n].getCharacter();
           if (emulate) {
             robot.keyPress(matrices[RED].getKeys()[n].getCodeRobot());
           }
@@ -178,7 +178,7 @@ class Viewer extends Controller<Viewer> {
         break;
       case 'g':
         if (matrices[GREEN].getKeys()[n].togglePress()) {
-          sMainText += matrices[GREEN].getKeys()[n].getCharacter();
+          textConsole += matrices[GREEN].getKeys()[n].getCharacter();
           if (emulate) {
             robot.keyPress(matrices[GREEN].getKeys()[n].getCodeRobot());
           }
@@ -196,7 +196,7 @@ class Viewer extends Controller<Viewer> {
         break;
       case 'u': // instead of 'b'
         if (matrices[BLUE].getKeys()[n].togglePress()) {
-          sMainText += matrices[BLUE].getKeys()[n].getCharacter();
+          textConsole += matrices[BLUE].getKeys()[n].getCharacter();
           if (emulate) {
             robot.keyPress(matrices[BLUE].getKeys()[n].getCodeRobot());
           }
@@ -214,7 +214,7 @@ class Viewer extends Controller<Viewer> {
         break;
       case 'y':
         if (matrices[YELLOW].getKeys()[n].togglePress()) {
-          sMainText += matrices[YELLOW].getKeys()[n].getCharacter();
+          textConsole += matrices[YELLOW].getKeys()[n].getCharacter();
           if (emulate) {
             robot.keyPress(matrices[YELLOW].getKeys()[n].getCodeRobot());
           }
@@ -232,7 +232,7 @@ class Viewer extends Controller<Viewer> {
         break;
       case 'w':
         if (matrices[WHITE].getKeys()[n].togglePress()) {
-          sMainText += matrices[WHITE].getKeys()[n].getCharacter();
+          textConsole += matrices[WHITE].getKeys()[n].getCharacter();
           if (emulate) {
             robot.keyPress(matrices[WHITE].getKeys()[n].getCodeRobot());
           }
@@ -253,7 +253,7 @@ class Viewer extends Controller<Viewer> {
         break;
       }
     }
-    mainTextarea.setText(sMainText);
+    textAreaConsole.setText(textConsole);
   }
 
   /*

@@ -4,6 +4,8 @@
 
 import controlP5.*;
 import processing.serial.*;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 
 /*
@@ -32,7 +34,7 @@ final String LAYOUT_EXTENSION = ".layout";
  */
 
 ControlP5 cp5;
-Textarea mainTextarea;
+Textarea textAreaConsole;
 Textfield mTextfieldLayout;
 Toggle toggleListening;
 
@@ -41,7 +43,7 @@ Toggle toggleListening;
  */
 
 boolean mListening = false;
-String sMainText = "";
+String textConsole = "";
 
 Serial myPort;  // The serial port
 int portNumber = -1;
@@ -53,10 +55,15 @@ Viewer viewer;
 int windowHeight[];
 boolean groupOpen[];
 
+DateTimeFormatter dtf;
+
+
 void setup() {
   size(492, 764, P3D);
   surface.setAlwaysOnTop(true);
   surface.setResizable(true);
+  
+  dtf = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
 
   smooth();
   PFont font = createFont("Arial", 20, true);
@@ -103,18 +110,19 @@ void setup() {
    */
 
   Group groupConsole = cp5.addGroup("Console")
-    .setBackgroundHeight(128)
+    .setBackgroundHeight(120)
     .setId(3)
     ;
 
-  mainTextarea = cp5.addTextarea("textAreaConsole")
+  textAreaConsole = cp5.addTextarea("textAreaConsole")
     .setPosition(0, 0)
-    .setSize(484, 128)
+    .setSize(484, 120)
     .setFont(createFont("arial", 15))
     .setLineHeight(14)
     .setColor(255)
     .setColorBackground(0)
     .moveTo(groupConsole)
+    .scroll(1)
     ;
 
   /*
@@ -271,12 +279,12 @@ void setup() {
   groupOpen[3] = true;
 
   reSizeWindow();
-  
+
   cp5.getProperties().addSet("k3Set");
   cp5.getProperties().move(cp5.getController("LayoutFileName"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Projection3d"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Emulate"), "default", "k3Set");
-  
+
   cp5.loadProperties(("k3Set"));
 }
 
@@ -348,9 +356,14 @@ void lookForKey(String buffer) {
   }
 }
 
+void addLog(String s) {
+  textAreaConsole.append(dtf.format(LocalTime.now()) + "\t" + s + "\n");
+}
+
 /*
 ** Event
  */
+ 
 void mousePressed() {
 }
 
@@ -411,23 +424,27 @@ void Listening(boolean theFlag) {
       }
     }
   }
+  addLog("LISTENING " + theFlag);
 }
 
 // Toggle
 void Projection3d(boolean theFlag) {
   viewer.setProjection3d(theFlag);
   cp5.saveProperties("k3Set", "k3Set");
+  addLog("PROJECTION3D " + theFlag);
 }
 
 // Toggle
 void Emulate(boolean theFlag) {
   viewer.setEmulate(theFlag);
   cp5.saveProperties("k3Set", "k3Set");
+  addLog("EMULATE " + theFlag);
 }
 
 // Toggle
 void Mapping(boolean theFlag) {
   viewer.setMapping(theFlag);
+  addLog("MAPPING " + theFlag);
 }
 
 // Button
@@ -435,6 +452,7 @@ public void Save() {
   viewer.saveLayout("layouts/" + mTextfieldLayout.getText() + LAYOUT_EXTENSION);
   println("ButtonSave");
   cp5.saveProperties("k3Set", "k3Set");
+  addLog("SAVE " + mTextfieldLayout.getText());
 }
 
 // Button
@@ -442,4 +460,5 @@ public void Load() {
   String[] data = loadStrings("layouts/" + mTextfieldLayout.getText() + LAYOUT_EXTENSION);
   viewer.loadLayout(data);
   cp5.saveProperties("k3Set", "k3Set");
+  addLog("LOAD " + mTextfieldLayout.getText());
 }
