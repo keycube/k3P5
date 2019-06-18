@@ -403,8 +403,13 @@ void controlEvent(ControlEvent theEvent) {
     groupOpen[id] = !groupOpen[id];
     reSizeWindow();
   } else if (theEvent.isController()) {
+    int index = (int) theEvent.getController().getValue();
     if (theEvent.isFrom(cp5.getController("SerialPortList"))) {
-      portNumber = (int) theEvent.getController().getValue();
+      portNumber = index;
+    }
+    if (theEvent.isFrom(cp5.getController("LayoutFileList"))) {
+       mTextfieldLayout.setText(getLayoutFileList()[index].replace(".layout", ""));
+       cp5.saveProperties("k3Set", "k3Set");
     }
   }
 }
