@@ -57,9 +57,11 @@ boolean groupOpen[];
 
 DateTimeFormatter dtf;
 
+Pref preference = new Pref();
+
 
 void setup() {
-  size(492, 764, P3D);
+  size(492, 48, P3D);
   surface.setAlwaysOnTop(true);
   surface.setResizable(true);
   
@@ -247,7 +249,7 @@ void setup() {
   Main
    */
 
-  cp5.addAccordion("accordionMain")
+  Accordion accordion = cp5.addAccordion("accordionMain")
     .setPosition(4, 4)
     .setWidth(484)
     .setMinItemHeight(32)
@@ -265,27 +267,29 @@ void setup() {
 
     .setColorLabel(color(232))
     .setColorValue(color(232))
-
-    .open()
     ;
-
+  
+  
   windowHeight[0] = groupPort.getBackgroundHeight();
   windowHeight[1] = groupLayout.getBackgroundHeight();
   windowHeight[2] = groupViewer.getBackgroundHeight();
   windowHeight[3] = groupConsole.getBackgroundHeight();
-  groupOpen[0] = true;
-  groupOpen[1] = true;
-  groupOpen[2] = true;
-  groupOpen[3] = true;
-
-  reSizeWindow();
-
+  
   cp5.getProperties().addSet("k3Set");
   cp5.getProperties().move(cp5.getController("LayoutFileName"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Projection3d"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Emulate"), "default", "k3Set");
-
   cp5.loadProperties(("k3Set"));
+  
+  preference.loading();
+    
+  for (int i = 0; i < groupOpen.length; i++) {
+    groupOpen[i] = preference.getBoolean("GROUP"+i);
+    if (groupOpen[i])
+      accordion.open(i);
+  }
+  
+  reSizeWindow();
 }
 
 // Draw
@@ -304,6 +308,8 @@ void draw() {
     }
   }
 }
+
+
 
 void reSizeWindow() {
   int currentHeight = 0;
@@ -401,6 +407,7 @@ void controlEvent(ControlEvent theEvent) {
   if (theEvent.isGroup()) { // check if the Event was triggered from a ControlGroup
     int id = theEvent.getGroup().getId();
     groupOpen[id] = !groupOpen[id];
+    preference.setBoolean("GROUP"+id, groupOpen[id]);
     reSizeWindow();
   } else if (theEvent.isController()) {
     int index = (int) theEvent.getController().getValue();
