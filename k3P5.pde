@@ -61,7 +61,7 @@ Pref preference = new Pref();
 
 
 void setup() {
-  size(492, 48, P3D);
+  size(492, 764, P3D);
   surface.setAlwaysOnTop(true);
   surface.setResizable(true);
   
