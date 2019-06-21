@@ -37,6 +37,7 @@ ControlP5 cp5;
 Textarea textAreaConsole;
 Textfield mTextfieldLayout;
 Toggle toggleListening;
+Textfield textfieldUser;
 
 /*
 ** Settings variable
@@ -59,20 +60,55 @@ DateTimeFormatter dtf;
 
 Pref preference = new Pref();
 
+/*
+  Callback
+ */
+
+CallbackListener toFront = new CallbackListener() {
+  public void controlEvent(CallbackEvent theEvent) {
+    switch(theEvent.getController().getName()) {
+    case "UserDirectoryList":
+      cp5.getGroup("User").bringToFront();
+      break;
+    case "SerialPortList":
+      cp5.getGroup("Port").bringToFront();
+      break;
+    case "LayoutFileList":
+      cp5.getGroup("Layout").bringToFront();
+      break;
+    }
+  }
+};
+
+CallbackListener reOrder = new CallbackListener() {
+  public void controlEvent(CallbackEvent theEvent) {
+    // Reset the group order
+    bringToFront();
+  }
+};
+
+
+void bringToFront() {
+  cp5.getGroup("User").bringToFront();
+  cp5.getGroup("Port").bringToFront();
+  cp5.getGroup("Layout").bringToFront();
+  cp5.getGroup("Viewer").bringToFront();
+  cp5.getGroup("Console").bringToFront();
+}
 
 void setup() {
   size(492, 764, P3D);
   surface.setAlwaysOnTop(true);
   surface.setResizable(true);
-  
+
   dtf = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
 
   smooth();
   PFont font = createFont("Arial", 20, true);
   textFont(font);
 
-  windowHeight = new int[4]; // number of accordion group (Port, Layout, Viewer, Console)
-  groupOpen = new boolean[4];
+  windowHeight = new int[5]; // number of accordion group (Port, Layout, Viewer, Console)
+  groupOpen = new boolean[5];
 
   /*
   ControlP5
@@ -81,39 +117,12 @@ void setup() {
   cp5 = new ControlP5(this);
 
   /*
-  Callback
-   */
-
-  CallbackListener toFront = new CallbackListener() {
-    public void controlEvent(CallbackEvent theEvent) {
-      switch(theEvent.getController().getName()) {
-      case "SerialPortList":
-        cp5.getGroup("Port").bringToFront();
-        break;
-      case "LayoutFileList":
-        cp5.getGroup("Layout").bringToFront();
-        break;
-      }
-    }
-  };
-
-  CallbackListener reOrder = new CallbackListener() {
-    public void controlEvent(CallbackEvent theEvent) {
-      // Reset the group order
-      cp5.getGroup("Port").bringToFront();
-      cp5.getGroup("Layout").bringToFront();
-      cp5.getGroup("Viewer").bringToFront();
-      cp5.getGroup("Console").bringToFront();
-    }
-  };
-
-  /*
   CONSOLE
    */
 
   Group groupConsole = cp5.addGroup("Console")
     .setBackgroundHeight(120)
-    .setId(3)
+    .setId(4)
     ;
 
   textAreaConsole = cp5.addTextarea("textAreaConsole")
@@ -134,7 +143,7 @@ void setup() {
   Group groupViewer = cp5.addGroup("Viewer")
     .setBackgroundColor(160)
     .setBackgroundHeight(484)
-    .setId(2)
+    .setId(3)
     ;
 
   viewer = new Viewer(cp5, "ViewerController").setPosition(0, 0).moveTo(groupViewer).setMatrices();
@@ -147,7 +156,7 @@ void setup() {
   Group groupLayout = cp5.addGroup("Layout")
     .setBackgroundColor(160)
     .setBackgroundHeight(64)
-    .setId(1)
+    .setId(2)
     ;
 
   mTextfieldLayout = cp5.addTextfield("LayoutFileName")
@@ -221,7 +230,7 @@ void setup() {
   Group groupPort = cp5.addGroup("Port")
     .setBackgroundColor(160)
     .setBackgroundHeight(40)
-    .setId(0)
+    .setId(1)
     ;
 
   cp5.addScrollableList("SerialPortList")
@@ -246,6 +255,37 @@ void setup() {
     ;
 
   /*
+  USER
+   */
+
+  Group groupUser = cp5.addGroup("User")
+    .setBackgroundColor(160)
+    .setBackgroundHeight(32)
+    .setId(0)
+    ;
+
+  textfieldUser = cp5.addTextfield("UserDirectoryName")
+    .setPosition(264, 4)
+    .setSize(128, 20)
+    .setText("unknown")
+    .moveTo(groupUser)
+    ;
+  textfieldUser.getCaptionLabel().setVisible(false);
+
+  cp5.addScrollableList("UserDirectoryList")
+    .setPosition(4, 4)
+    .setSize(256, 128)
+    .setBarHeight(20)
+    .setItemHeight(20)
+    .setBackgroundColor(color(48))
+    .addItems(getUserDirectoryList())
+    .moveTo(groupUser)
+    .onEnter(toFront)
+    .onLeave(reOrder)
+    .close()
+    ;
+
+  /*
   Main
    */
 
@@ -254,6 +294,7 @@ void setup() {
     .setWidth(484)
     .setMinItemHeight(32)
 
+    .addItem(groupUser)
     .addItem(groupPort)
     .addItem(groupLayout)
     .addItem(groupViewer)
@@ -268,28 +309,32 @@ void setup() {
     .setColorLabel(color(232))
     .setColorValue(color(232))
     ;
-  
-  
-  windowHeight[0] = groupPort.getBackgroundHeight();
-  windowHeight[1] = groupLayout.getBackgroundHeight();
-  windowHeight[2] = groupViewer.getBackgroundHeight();
-  windowHeight[3] = groupConsole.getBackgroundHeight();
-  
+
+
+  windowHeight[0] = groupUser.getBackgroundHeight();
+  windowHeight[1] = groupPort.getBackgroundHeight();
+  windowHeight[2] = groupLayout.getBackgroundHeight();
+  windowHeight[3] = groupViewer.getBackgroundHeight();
+  windowHeight[4] = groupConsole.getBackgroundHeight();
+
   cp5.getProperties().addSet("k3Set");
   cp5.getProperties().move(cp5.getController("LayoutFileName"), "default", "k3Set");
+  cp5.getProperties().move(cp5.getController("UserDirectoryName"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Projection3d"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Emulate"), "default", "k3Set");
   cp5.loadProperties(("k3Set"));
-  
+
   preference.loading();
-    
+
   for (int i = 0; i < groupOpen.length; i++) {
     groupOpen[i] = preference.getBoolean("GROUP"+i);
     if (groupOpen[i])
       accordion.open(i);
   }
-  
+
   reSizeWindow();
+
+  printArray(getUserDirectoryList());
 }
 
 // Draw
@@ -310,7 +355,6 @@ void draw() {
 }
 
 
-
 void reSizeWindow() {
   int currentHeight = 0;
   for (int i = 0; i < windowHeight.length; i++) {
@@ -318,7 +362,24 @@ void reSizeWindow() {
       currentHeight += windowHeight[i];
     }
   }
-  surface.setSize(492, currentHeight + 36 + 4 + 8); // + barHeight * 4 + barMargin * 4 + windowMargin * 2
+  surface.setSize(492, currentHeight + 45 + 5 + 8); // + barHeight * 4 + barMargin * 4 + windowMargin * 2
+}
+
+String[] getUserDirectoryList() {
+  FilenameFilter userFilter = new FilenameFilter() {
+    @Override public boolean accept(File current, String name) {
+      return new File(current, name).isDirectory();
+    }
+  };
+
+  String path = sketchPath() + "/users";
+  File file = new File(path);
+  if (file.isDirectory()) {
+    String names[] = file.list(userFilter);
+    return names;
+  } else {
+    return null;
+  }
 }
 
 String[] getLayoutFileList() {
@@ -369,7 +430,7 @@ void addLog(String s) {
 /*
 ** Event
  */
- 
+
 void mousePressed() {
 }
 
@@ -413,10 +474,17 @@ void controlEvent(ControlEvent theEvent) {
     int index = (int) theEvent.getController().getValue();
     if (theEvent.isFrom(cp5.getController("SerialPortList"))) {
       portNumber = index;
+      bringToFront();
     }
     if (theEvent.isFrom(cp5.getController("LayoutFileList"))) {
-       mTextfieldLayout.setText(getLayoutFileList()[index].replace(".layout", ""));
-       cp5.saveProperties("k3Set", "k3Set");
+      mTextfieldLayout.setText(getLayoutFileList()[index].replace(".layout", ""));
+      cp5.saveProperties("k3Set", "k3Set");
+      bringToFront();
+    }
+    if (theEvent.isFrom(cp5.getController("UserDirectoryList"))) {
+      textfieldUser.setText(getUserDirectoryList()[index]);
+      cp5.saveProperties("k3Set", "k3Set");
+      bringToFront();
     }
   }
 }

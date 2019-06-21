@@ -163,7 +163,7 @@ static String textFromKeyCode(int keyNumber) {
   // directional arrow
   mMap.put(37, "LEFT");
   mMap.put(38, "UP");
-  mMap.put(39, "RIGHT");
+  mMap.put(39, "RGHT");
   mMap.put(40, "DOWN");
 
   // special keys
@@ -183,14 +183,14 @@ static String textFromKeyCode(int keyNumber) {
   // mMap.put(1192, "` ~");
 
   // un-written/printable key
-  mMap.put(8, "<-");
+  mMap.put(8, "BKSP");
   mMap.put(9, "TAB");
-  mMap.put(10, "ENTER");
-  mMap.put(16, "SHIFT");
+  mMap.put(10, "ENTR");
+  mMap.put(16, "SHFT");
   mMap.put(17, "CTRL");
   mMap.put(18, "ALT");
   mMap.put(157, "META");
-  mMap.put(32, "SPACE");
+  mMap.put(32, "SPCE");
   
   //mMap.put(57, "LOCK"); // change it, understand why 1022 is not right, check website https://docs.oracle.com/javase/8/docs/api/constant-values.html#java.awt.event.KeyEvent.KEY_FIRST
 
