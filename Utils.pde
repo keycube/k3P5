@@ -24,13 +24,14 @@ void appendTextToFile(String filename, String text) {
   }
   try {
     PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f, true)));
-    out.println(text);
+    out.print(text);
     out.close();
   }
   catch (IOException e) {
     e.printStackTrace();
   }
 }
+
 
 /**
  * Creates a new file including all subfolders

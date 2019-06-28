@@ -157,7 +157,7 @@ class Viewer extends Controller<Viewer> {
       currentKeyPressedNumber = n;
       timer = millis() + FIRST_DELAY_KEY_REPEAT;
       
-      return ("PRESS:" + matrices[matrixColor].getKeys()[n].getCharacter());
+      return (matrices[matrixColor].getKeys()[n].getCode() + "\t" + matrices[matrixColor].getKeys()[n].getCharacter() + "\t1");
     } else {
       if (emulate) {
         robot.keyRelease(matrices[matrixColor].getKeys()[n].getCodeRobot());
@@ -165,7 +165,7 @@ class Viewer extends Controller<Viewer> {
       currentKeyPressedColor = -1;
       currentKeyPressedNumber = -1;
       
-      return ("RELEASE:" + matrices[matrixColor].getKeys()[n].getCharacter());
+      return (matrices[matrixColor].getKeys()[n].getCode() + "\t" + matrices[matrixColor].getKeys()[n].getCharacter() + "\t0");
     }
   }
 

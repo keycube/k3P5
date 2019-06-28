@@ -5,6 +5,7 @@
 import controlP5.*;
 import processing.serial.*;
 import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
@@ -55,7 +56,8 @@ Viewer viewer;
 int windowHeight[];
 boolean groupOpen[];
 
-DateTimeFormatter dtf;
+DateTimeFormatter dtfTiming;
+DateTimeFormatter dtfYearMonth;
 
 Pref preference = new Pref();
 
@@ -100,7 +102,8 @@ void setup() {
   surface.setAlwaysOnTop(true);
   surface.setResizable(true);
 
-  dtf = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
+  dtfTiming = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
+  dtfYearMonth = DateTimeFormatter.ofPattern("YYYYMM");
 
   smooth();
   PFont font = createFont("Arial", 20, true);
@@ -317,8 +320,8 @@ void setup() {
   windowHeight[4] = groupConsole.getBackgroundHeight();
 
   cp5.getProperties().addSet("k3Set");
-  cp5.getProperties().move(cp5.getController("LayoutFileName"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("UserDirectoryName"), "default", "k3Set");
+  cp5.getProperties().move(cp5.getController("LayoutFileName"), "default", "k3Set");  
   cp5.getProperties().move(cp5.getController("Projection3d"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Emulate"), "default", "k3Set");
   cp5.loadProperties(("k3Set"));
@@ -346,7 +349,7 @@ void draw() {
     while (myPort.available() > 0) {
       String inBuffer = myPort.readStringUntil('.');
       if (inBuffer != null) {
-        println(inBuffer);
+        //println(inBuffer);
         lookForKey(inBuffer);
       }
     }
@@ -362,6 +365,13 @@ void reSizeWindow() {
     }
   }
   surface.setSize(492, currentHeight + 45 + 5 + 8); // + barHeight * 4 + barMargin * 4 + windowMargin * 2
+}
+
+void appendLogToFile(String text) {
+  if (textfieldUser.getText().length() > 0) {
+    String path = sketchPath() + "/users/" + textfieldUser.getText() + "/" + dtfYearMonth.format(LocalDateTime.now()) + ".txt";
+    appendTextToFile(path, text);
+  }
 }
 
 String[] getUserDirectoryList() {
@@ -423,7 +433,9 @@ void lookForKey(String buffer) {
 }
 
 void addLog(String s) {
-  textAreaConsole.append(dtf.format(LocalTime.now()) + "\t" + s + "\n");
+  s = dtfTiming.format(LocalTime.now()) + "\t" + s + "\n";
+  textAreaConsole.append(s);
+  appendLogToFile(s);
 }
 
 /*
