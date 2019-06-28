@@ -45,6 +45,8 @@ class Viewer extends Controller<Viewer> {
   int currentKeyPressedNumber = -1;
   int previousKeyPressedColor = -1;
   int previousKeyPressedNumber = -1;
+  
+  private boolean CAPS_LOCK = false; 
 
   // Constructor
   Viewer(ControlP5 cp5, String name) {
@@ -150,9 +152,10 @@ class Viewer extends Controller<Viewer> {
   public String keycubeEvent(int matrixColor, int n) {
     if (matrices[matrixColor].getKeys()[n].togglePress()) {
       if (emulate) {
-        robot.keyPress(matrices[matrixColor].getKeys()[n].getCodeRobot());
+        int vk = matrices[matrixColor].getKeys()[n].getCodeRobot();
+        robot.keyPress(vk);
       }
-
+      
       currentKeyPressedColor = matrixColor;
       currentKeyPressedNumber = n;
       timer = millis() + FIRST_DELAY_KEY_REPEAT;
@@ -160,7 +163,15 @@ class Viewer extends Controller<Viewer> {
       return (matrices[matrixColor].getKeys()[n].getCode() + "\t" + matrices[matrixColor].getKeys()[n].getCharacter() + "\t1");
     } else {
       if (emulate) {
-        robot.keyRelease(matrices[matrixColor].getKeys()[n].getCodeRobot());
+        int vk = matrices[matrixColor].getKeys()[n].getCodeRobot();
+        if (vk == KeyEvent.VK_CAPS_LOCK) {
+          CAPS_LOCK = !CAPS_LOCK;
+          if (!CAPS_LOCK) {
+            robot.keyRelease(vk);
+          }
+        } else {
+          robot.keyRelease(vk);
+        }
       }
       currentKeyPressedColor = -1;
       currentKeyPressedNumber = -1;
