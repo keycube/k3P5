@@ -70,8 +70,9 @@ class Viewer extends Controller<Viewer> {
       timer = millis() + REGULAR_DELAY_KEY_REPEAT;
       //println("timer x 5s");
       if ((currentKeyPressedColor != -1) && (currentKeyPressedNumber != -1)) {
-        textConsole += matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCharacter();
-        textAreaConsole.setText(textConsole);
+        // Should send callback event instead
+        /*textConsole += matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCharacter();
+         textAreaConsole.setText(textConsole);*/
         if (emulate) {
           robot.keyPress(matrices[currentKeyPressedColor].getKeys()[currentKeyPressedNumber].getCodeRobot());
         }
@@ -146,7 +147,29 @@ class Viewer extends Controller<Viewer> {
     keyPress = null;
   }
 
-  public void lookForKey(String s) {
+  public String keycubeEvent(int matrixColor, int n) {
+    if (matrices[matrixColor].getKeys()[n].togglePress()) {
+      if (emulate) {
+        robot.keyPress(matrices[matrixColor].getKeys()[n].getCodeRobot());
+      }
+
+      currentKeyPressedColor = matrixColor;
+      currentKeyPressedNumber = n;
+      timer = millis() + FIRST_DELAY_KEY_REPEAT;
+      
+      return ("PRESS:" + matrices[matrixColor].getKeys()[n].getCharacter());
+    } else {
+      if (emulate) {
+        robot.keyRelease(matrices[matrixColor].getKeys()[n].getCodeRobot());
+      }
+      currentKeyPressedColor = -1;
+      currentKeyPressedNumber = -1;
+      
+      return ("RELEASE:" + matrices[matrixColor].getKeys()[n].getCharacter());
+    }
+  }
+
+  public String lookForKey(String s) {
     int n = -1;
     try {
       n = Integer.parseInt(s.substring(1, 2), 16);
@@ -158,102 +181,23 @@ class Viewer extends Controller<Viewer> {
 
     if (n != -1) {
       switch (s.charAt(0)) {
+        // refactor this into function/method
       case 'r':
-        if (matrices[RED].getKeys()[n].togglePress()) {
-          textConsole += matrices[RED].getKeys()[n].getCharacter();
-          if (emulate) {
-            robot.keyPress(matrices[RED].getKeys()[n].getCodeRobot());
-          }
-
-          currentKeyPressedColor = RED;
-          currentKeyPressedNumber = n;
-          timer = millis() + FIRST_DELAY_KEY_REPEAT;
-        } else {
-          if (emulate) {
-            robot.keyRelease(matrices[RED].getKeys()[n].getCodeRobot());
-          }
-          currentKeyPressedColor = -1;
-          currentKeyPressedNumber = -1;
-        }
-        break;
+        return keycubeEvent(RED, n);
       case 'g':
-        if (matrices[GREEN].getKeys()[n].togglePress()) {
-          textConsole += matrices[GREEN].getKeys()[n].getCharacter();
-          if (emulate) {
-            robot.keyPress(matrices[GREEN].getKeys()[n].getCodeRobot());
-          }
-
-          currentKeyPressedColor = GREEN;
-          currentKeyPressedNumber = n;
-          timer = millis() + FIRST_DELAY_KEY_REPEAT;
-        } else {
-          if (emulate) {
-            robot.keyRelease(matrices[GREEN].getKeys()[n].getCodeRobot());
-          }
-          currentKeyPressedColor = -1;
-          currentKeyPressedNumber = -1;
-        }
-        break;
+        return keycubeEvent(GREEN, n);
       case 'u': // instead of 'b'
-        if (matrices[BLUE].getKeys()[n].togglePress()) {
-          textConsole += matrices[BLUE].getKeys()[n].getCharacter();
-          if (emulate) {
-            robot.keyPress(matrices[BLUE].getKeys()[n].getCodeRobot());
-          }
-
-          currentKeyPressedColor = BLUE;
-          currentKeyPressedNumber = n;
-          timer = millis() + FIRST_DELAY_KEY_REPEAT;
-        } else {
-          if (emulate) {
-            robot.keyRelease(matrices[BLUE].getKeys()[n].getCodeRobot());
-          }
-          currentKeyPressedColor = -1;
-          currentKeyPressedNumber = -1;
-        }
-        break;
+        return keycubeEvent(BLUE, n);
       case 'y':
-        if (matrices[YELLOW].getKeys()[n].togglePress()) {
-          textConsole += matrices[YELLOW].getKeys()[n].getCharacter();
-          if (emulate) {
-            robot.keyPress(matrices[YELLOW].getKeys()[n].getCodeRobot());
-          }
-
-          currentKeyPressedColor = YELLOW;
-          currentKeyPressedNumber = n;
-          timer = millis() + FIRST_DELAY_KEY_REPEAT;
-        } else {
-          if (emulate) {
-            robot.keyRelease(matrices[YELLOW].getKeys()[n].getCodeRobot());
-          }
-          currentKeyPressedColor = -1;
-          currentKeyPressedNumber = -1;
-        }
-        break;
+        return keycubeEvent(YELLOW, n);
       case 'w':
-        if (matrices[WHITE].getKeys()[n].togglePress()) {
-          textConsole += matrices[WHITE].getKeys()[n].getCharacter();
-          if (emulate) {
-            robot.keyPress(matrices[WHITE].getKeys()[n].getCodeRobot());
-          }
-
-          currentKeyPressedColor = WHITE;
-          currentKeyPressedNumber = n;
-          timer = millis() + FIRST_DELAY_KEY_REPEAT;
-        } else {
-          if (emulate) {
-            robot.keyRelease(matrices[WHITE].getKeys()[n].getCodeRobot());
-          }
-          currentKeyPressedColor = -1;
-          currentKeyPressedNumber = -1;
-        }
-        break;
+        return keycubeEvent(WHITE, n);
       default:
         println("weird");
         break;
       }
     }
-    textAreaConsole.setText(textConsole);
+    return null;
   }
 
   /*

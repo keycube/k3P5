@@ -44,7 +44,6 @@ Textfield textfieldUser;
  */
 
 boolean mListening = false;
-String textConsole = "";
 
 Serial myPort;  // The serial port
 int portNumber = -1;
@@ -419,7 +418,7 @@ void lookForKey(String buffer) {
       continue;
     }
 
-    viewer.lookForKey(s);
+    addLog(viewer.lookForKey(s));
   }
 }
 
