@@ -515,27 +515,27 @@ void Listening(boolean theFlag) {
       }
     }
   }
-  addLog("LISTENING " + theFlag);
+  addLog("LISTENING\t" + theFlag);
 }
 
 // Toggle
 void Projection3d(boolean theFlag) {
   viewer.setProjection3d(theFlag);
   cp5.saveProperties("k3Set", "k3Set");
-  addLog("PROJECTION3D " + theFlag);
+  addLog("PROJECTION3D\t" + theFlag);
 }
 
 // Toggle
 void Emulate(boolean theFlag) {
   viewer.setEmulate(theFlag);
   cp5.saveProperties("k3Set", "k3Set");
-  addLog("EMULATE " + theFlag);
+  addLog("EMULATE\t" + theFlag);
 }
 
 // Toggle
 void Mapping(boolean theFlag) {
   viewer.setMapping(theFlag);
-  addLog("MAPPING " + theFlag);
+  addLog("MAPPING\t" + theFlag);
 }
 
 // Button
@@ -543,7 +543,7 @@ public void Save() {
   viewer.saveLayout("layouts/" + mTextfieldLayout.getText() + LAYOUT_EXTENSION);
   println("ButtonSave");
   cp5.saveProperties("k3Set", "k3Set");
-  addLog("SAVE " + mTextfieldLayout.getText());
+  addLog("SAVE\t" + mTextfieldLayout.getText());
 }
 
 // Button
@@ -551,5 +551,5 @@ public void Load() {
   String[] data = loadStrings("layouts/" + mTextfieldLayout.getText() + LAYOUT_EXTENSION);
   viewer.loadLayout(data);
   cp5.saveProperties("k3Set", "k3Set");
-  addLog("LOAD " + mTextfieldLayout.getText());
+  addLog("LOAD\t" + mTextfieldLayout.getText());
 }
