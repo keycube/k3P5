@@ -7,6 +7,9 @@ import processing.serial.*;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 
 
 /*
@@ -64,6 +67,9 @@ DateTimeFormatter dtfTiming;
 DateTimeFormatter dtfYearMonth;
 
 Pref preference = new Pref();
+
+List<String> phrases;
+int phraseIndex;
 
 /*
   Callback
@@ -380,6 +386,8 @@ void setup() {
   reSizeWindow();
 
   printArray(getUserDirectoryList());
+  
+  loadPhrases();
 }
 
 // Draw
@@ -399,6 +407,20 @@ void draw() {
   }
 }
 
+public void loadPhrases() {
+  phrases = Arrays.asList(loadStrings("dataset/phrases2.txt"));
+  print(phrases.size());
+  addLog("LOAD PHRASES");
+  Collections.shuffle(phrases);
+  phraseIndex = -1;
+  newPhrase();
+}
+
+public void newPhrase() {
+  phraseIndex += 1;
+  addLog("PHRASE\t" + phrases.get(phraseIndex));
+  textfieldPhrase.setText(phrases.get(phraseIndex));
+}
 
 void reSizeWindow() {
   int currentHeight = 0;
@@ -518,13 +540,17 @@ void controlEvent(ControlEvent theEvent) {
   // therefore you need to check the originator of the Event with
   // if (theEvent.isGroup())
   // to avoid an error message thrown by controlP5.
-
+  
   if (theEvent.isGroup()) { // check if the Event was triggered from a ControlGroup
     int id = theEvent.getGroup().getId();
     groupOpen[id] = !groupOpen[id];
     preference.setBoolean("GROUP"+id, groupOpen[id]);
     reSizeWindow();
   } else if (theEvent.isController()) {
+    if (theEvent.isFrom(textfieldRetranscribe)) {
+      addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + theEvent.getStringValue());  
+      newPhrase();
+    }    
     int index = (int) theEvent.getController().getValue();
     if (theEvent.isFrom(cp5.getController("SerialPortList"))) {
       portNumber = index;
