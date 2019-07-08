@@ -30,11 +30,11 @@ b	12	-1	b13	-1
 b	13	86	V	86
 b	14	70	F	70
 b	15	82	R	82
-r	0	-1	r1	-1
+r	0	9	TAB	9
 r	1	71	G	71
 r	2	84	T	84
 r	3	12	CLCK	20
-r	4	9	TAB	9
+r	4	32	SPCE	32
 r	5	37	LFT	37
 r	6	38	UP	38
 r	7	89	Y	89
@@ -43,7 +43,7 @@ r	9	40	DWN	40
 r	10	39	RGHT	39
 r	11	72	H	72
 r	12	32	SPCE	32
-r	13	32	SPCE	32
+r	13	10	ENTR	10
 r	14	10	ENTR	10
 r	15	8	BKSP	8
 g	0	18	ALT	18
