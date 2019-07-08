@@ -70,6 +70,9 @@ Pref preference = new Pref();
 
 List<String> phrases;
 int phraseIndex;
+long timer;
+Slider sliderTimer;
+int timerValue = 1200;
 
 /*
   Callback
@@ -172,13 +175,21 @@ void setup() {
     .setBackgroundHeight(96)
     .setId(3)
     ;
+    
+  sliderTimer = cp5.addSlider("Timer")
+     .setPosition(4,4)
+     .setSize(476,16)
+     .setRange(0,1200)
+     .setValue(1200)
+     .moveTo(groupPhrase)
+     ;
   
   PFont pfontPhrase = createFont("Monospaced", 18, true);
   ControlFont cfont = new ControlFont(pfontPhrase);
 
   textfieldPhrase = cp5.addTextfield("fieldPhrase")
     .setFont(cfont)
-    .setPosition(4, 4)
+    .setPosition(4, 24)
     .setSize(476, 32)
     .setText("a steep learning curve in riding a unicycle")
     .moveTo(groupPhrase)
@@ -188,7 +199,7 @@ void setup() {
   textfieldRetranscribe = cp5.addTextfield("fieldRetranscribe")
     .setText("")
     .setFont(cfont)
-    .setPosition(4, 36)
+    .setPosition(4, 60)
     .setSize(476, 32)
     .moveTo(groupPhrase)
     ;
@@ -388,6 +399,7 @@ void setup() {
   printArray(getUserDirectoryList());
   
   loadPhrases();
+  timer = millis();
 }
 
 // Draw
@@ -404,6 +416,12 @@ void draw() {
         lookForKey(inBuffer);
       }
     }
+  }
+  
+  if (millis() >= timer) {
+    timer += 1000;
+    timerValue -= 1;
+    sliderTimer.setValue(timerValue);
   }
 }
 
