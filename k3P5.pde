@@ -40,6 +40,10 @@ Textfield mTextfieldLayout;
 Toggle toggleListening;
 Textfield textfieldUser;
 
+Textlabel textlabelPhrase;
+Textfield textfieldPhrase;
+Textfield textfieldRetranscribe;
+
 /*
 ** Settings variable
  */
@@ -93,6 +97,7 @@ void bringToFront() {
   cp5.getGroup("User").bringToFront();
   cp5.getGroup("Port").bringToFront();
   cp5.getGroup("Layout").bringToFront();
+  cp5.getGroup("Phrase").bringToFront();
   cp5.getGroup("Viewer").bringToFront();
   cp5.getGroup("Console").bringToFront();
 }
@@ -109,8 +114,8 @@ void setup() {
   PFont font = createFont("Arial", 20, true);
   textFont(font);
 
-  windowHeight = new int[5]; // number of accordion group (Port, Layout, Viewer, Console)
-  groupOpen = new boolean[5];
+  windowHeight = new int[6]; // number of accordion group (Port, Layout, Viewer, Console)
+  groupOpen = new boolean[6];
 
   /*
   ControlP5
@@ -124,7 +129,7 @@ void setup() {
 
   Group groupConsole = cp5.addGroup("Console")
     .setBackgroundHeight(120)
-    .setId(4)
+    .setId(5)
     ;
 
   textAreaConsole = cp5.addTextarea("textAreaConsole")
@@ -145,11 +150,43 @@ void setup() {
   Group groupViewer = cp5.addGroup("Viewer")
     .setBackgroundColor(160)
     .setBackgroundHeight(484)
-    .setId(3)
+    .setId(4)
     ;
 
   viewer = new Viewer(cp5, "ViewerController").setPosition(0, 0).moveTo(groupViewer).setMatrices();
   viewer.setCallback(new ToViewerCallback());
+
+
+  /*
+  PHRASE
+   */
+
+  Group groupPhrase = cp5.addGroup("Phrase")
+    .setBackgroundColor(160)
+    .setBackgroundHeight(96)
+    .setId(3)
+    ;
+  
+  PFont pfontPhrase = createFont("Monospaced", 18, true);
+  ControlFont cfont = new ControlFont(pfontPhrase);
+
+  textfieldPhrase = cp5.addTextfield("fieldPhrase")
+    .setFont(cfont)
+    .setPosition(4, 4)
+    .setSize(476, 32)
+    .setText("a steep learning curve in riding a unicycle")
+    .moveTo(groupPhrase)
+    ;
+  textfieldPhrase.getCaptionLabel().setVisible(false);
+  
+  textfieldRetranscribe = cp5.addTextfield("fieldRetranscribe")
+    .setText("")
+    .setFont(cfont)
+    .setPosition(4, 36)
+    .setSize(476, 32)
+    .moveTo(groupPhrase)
+    ;
+  textfieldRetranscribe.getCaptionLabel().setVisible(false);
 
   /*
   LAYOUT
@@ -299,25 +336,31 @@ void setup() {
     .addItem(groupUser)
     .addItem(groupPort)
     .addItem(groupLayout)
+    .addItem(groupPhrase)
     .addItem(groupViewer)
     .addItem(groupConsole)
     .setCollapseMode(Accordion.MULTI)
 
     .setColorBackground(color(48))
 
-    .setColorActive(color(128)) 
+    .setColorActive(color(128))
     .setColorForeground(color(128))
 
     .setColorLabel(color(232))
     .setColorValue(color(232))
     ;
 
+  textfieldPhrase.setColorBackground(color(160))
+    .setColorActive(color(255, 0, 0))
+    .setColorForeground(color(160))
+    .setColorValue(color(255));
 
   windowHeight[0] = groupUser.getBackgroundHeight();
   windowHeight[1] = groupPort.getBackgroundHeight();
   windowHeight[2] = groupLayout.getBackgroundHeight();
-  windowHeight[3] = groupViewer.getBackgroundHeight();
-  windowHeight[4] = groupConsole.getBackgroundHeight();
+  windowHeight[3] = groupPhrase.getBackgroundHeight();
+  windowHeight[4] = groupViewer.getBackgroundHeight();
+  windowHeight[5] = groupConsole.getBackgroundHeight();
 
   cp5.getProperties().addSet("k3Set");
   cp5.getProperties().move(cp5.getController("UserDirectoryName"), "default", "k3Set");
@@ -364,7 +407,7 @@ void reSizeWindow() {
       currentHeight += windowHeight[i];
     }
   }
-  surface.setSize(492, currentHeight + 45 + 5 + 8); // + barHeight * 4 + barMargin * 4 + windowMargin * 2
+  surface.setSize(492, currentHeight + 10 * windowHeight.length + 8); // + barHeight * 5 + barMargin * 5 + windowMargin * 2
 }
 
 void appendLogToFile(String text) {
