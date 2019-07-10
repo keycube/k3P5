@@ -73,6 +73,7 @@ int phraseIndex;
 long timer;
 Slider sliderTimer;
 int timerValue = 1200;
+boolean sessionPhrase = false;
 
 /*
   Callback
@@ -172,34 +173,40 @@ void setup() {
 
   Group groupPhrase = cp5.addGroup("Phrase")
     .setBackgroundColor(160)
-    .setBackgroundHeight(96)
+    .setBackgroundHeight(120)
     .setId(3)
     ;
-    
+
+  cp5.addButton("Start")
+    .setPosition(4, 4)
+    .setSize(40, 20)
+    .moveTo(groupPhrase)
+    ;
+
   sliderTimer = cp5.addSlider("Timer")
-     .setPosition(4,4)
-     .setSize(476,16)
-     .setRange(0,1200)
-     .setValue(1200)
-     .moveTo(groupPhrase)
-     ;
-  
+    .setPosition(4, 28)
+    .setSize(476, 16)
+    .setRange(0, 1200)
+    .setValue(1200)
+    .moveTo(groupPhrase)
+    ;
+
   PFont pfontPhrase = createFont("Monospaced", 18, true);
   ControlFont cfont = new ControlFont(pfontPhrase);
 
   textfieldPhrase = cp5.addTextfield("fieldPhrase")
     .setFont(cfont)
-    .setPosition(4, 24)
+    .setPosition(4, 48)
     .setSize(476, 32)
-    .setText("a steep learning curve in riding a unicycle")
+    .setText("abcdefghijklmnopqrstuvwxyz")
     .moveTo(groupPhrase)
     ;
   textfieldPhrase.getCaptionLabel().setVisible(false);
-  
+
   textfieldRetranscribe = cp5.addTextfield("fieldRetranscribe")
     .setText("")
     .setFont(cfont)
-    .setPosition(4, 60)
+    .setPosition(4, 84)
     .setSize(476, 32)
     .moveTo(groupPhrase)
     ;
@@ -397,7 +404,7 @@ void setup() {
   reSizeWindow();
 
   printArray(getUserDirectoryList());
-  
+
   loadPhrases();
   timer = millis();
 }
@@ -417,11 +424,13 @@ void draw() {
       }
     }
   }
-  
-  if (millis() >= timer) {
-    timer += 1000;
-    timerValue -= 1;
-    sliderTimer.setValue(timerValue);
+
+  if (sessionPhrase) {
+    if (millis() >= timer) {
+      timer += 1000;
+      timerValue -= 1;
+      sliderTimer.setValue(timerValue);
+    }
   }
 }
 
@@ -431,10 +440,12 @@ public void loadPhrases() {
   addLog("LOAD PHRASES");
   Collections.shuffle(phrases);
   phraseIndex = -1;
-  newPhrase();
 }
 
 public void newPhrase() {
+  if (phraseIndex >= phrases.size()-1) {
+    phraseIndex = -1;
+  }
   phraseIndex += 1;
   addLog("PHRASE\t" + phrases.get(phraseIndex));
   textfieldPhrase.setText(phrases.get(phraseIndex));
@@ -558,17 +569,19 @@ void controlEvent(ControlEvent theEvent) {
   // therefore you need to check the originator of the Event with
   // if (theEvent.isGroup())
   // to avoid an error message thrown by controlP5.
-  
+
   if (theEvent.isGroup()) { // check if the Event was triggered from a ControlGroup
     int id = theEvent.getGroup().getId();
     groupOpen[id] = !groupOpen[id];
     preference.setBoolean("GROUP"+id, groupOpen[id]);
     reSizeWindow();
   } else if (theEvent.isController()) {
-    if (theEvent.isFrom(textfieldRetranscribe)) {
-      addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + theEvent.getStringValue());  
-      newPhrase();
-    }    
+    if (sessionPhrase) {
+      if (theEvent.isFrom(textfieldRetranscribe)) {
+        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + theEvent.getStringValue());  
+        newPhrase();
+      }
+    }
     int index = (int) theEvent.getController().getValue();
     if (theEvent.isFrom(cp5.getController("SerialPortList"))) {
       portNumber = index;
@@ -639,4 +652,10 @@ public void Load() {
   viewer.loadLayout(data);
   cp5.saveProperties("k3Set", "k3Set");
   addLog("LOAD\t" + mTextfieldLayout.getText());
+}
+
+// Button
+public void Start() {
+  sessionPhrase = true;
+  newPhrase();
 }
