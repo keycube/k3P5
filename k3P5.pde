@@ -75,6 +75,8 @@ Slider sliderTimer;
 int timerValue = 1200;
 boolean sessionPhrase = false;
 
+boolean isAzerty = false;
+
 /*
   Callback
  */
@@ -173,7 +175,7 @@ void setup() {
 
   Group groupPhrase = cp5.addGroup("Phrase")
     .setBackgroundColor(160)
-    .setBackgroundHeight(120)
+    .setBackgroundHeight(132)
     .setId(3)
     ;
 
@@ -183,8 +185,17 @@ void setup() {
     .moveTo(groupPhrase)
     ;
 
+  cp5.addToggle("AZERTY_QWERTY")
+    .setPosition(48, 4)
+    .setSize(68, 20)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    .moveTo(groupPhrase)
+    .setBroadcast(true)
+    ;
+
   sliderTimer = cp5.addSlider("Timer")
-    .setPosition(4, 28)
+    .setPosition(4, 40)
     .setSize(476, 16)
     .setRange(0, 1200)
     .setValue(1200)
@@ -196,7 +207,7 @@ void setup() {
 
   textfieldPhrase = cp5.addTextfield("fieldPhrase")
     .setFont(cfont)
-    .setPosition(4, 48)
+    .setPosition(4, 60)
     .setSize(476, 32)
     .setText("abcdefghijklmnopqrstuvwxyz")
     .moveTo(groupPhrase)
@@ -206,9 +217,10 @@ void setup() {
   textfieldRetranscribe = cp5.addTextfield("fieldRetranscribe")
     .setText("")
     .setFont(cfont)
-    .setPosition(4, 84)
+    .setPosition(4, 96)
     .setSize(476, 32)
     .moveTo(groupPhrase)
+    .setText("_")
     ;
   textfieldRetranscribe.getCaptionLabel().setVisible(false);
 
@@ -247,6 +259,7 @@ void setup() {
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     .moveTo(groupLayout)
+    .setBroadcast(true)
     ;
 
   cp5.addToggle("Emulate")
@@ -315,6 +328,7 @@ void setup() {
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     .moveTo(groupPort)
+    .setBroadcast(true)
     ;
 
   /*
@@ -391,6 +405,7 @@ void setup() {
   cp5.getProperties().move(cp5.getController("LayoutFileName"), "default", "k3Set");  
   cp5.getProperties().move(cp5.getController("Projection3d"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Emulate"), "default", "k3Set");
+  cp5.getProperties().move(cp5.getController("AZERTY_QWERTY"), "default", "k3Set");
   cp5.loadProperties(("k3Set"));
 
   preference.loading();
@@ -522,7 +537,7 @@ void lookForKey(String buffer) {
       continue;
     }
 
-    addLog(viewer.lookForKey(s));
+    addLog(viewer.lookForKey(s) + "\t0");
   }
 }
 
@@ -557,6 +572,58 @@ void keyPressed() {
       }
     }
   }
+
+  String transcribed = textfieldRetranscribe.getText();
+  
+  if (keyCode == 8) { // backspace
+    if (transcribed.length()-1 > 0) {
+      textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-2) + "_");
+    }
+    addLog("BKSP\t1");
+  }
+  
+  if (keyCode == 10) { // enter
+    addLog("ENTR\t1");
+    textfieldRetranscribe.submit();
+    textfieldRetranscribe.setText("_");
+  }
+  
+  if (keyCode == 32) { // space
+    textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + " _");
+    addLog("SPCE\t1");
+  }
+  
+  if ((keyCode >= 'A' && keyCode <= 'Z') || (keyCode == 59)) { // between 65 and 90 + 59 for M with azerty + 32 for space
+    int keycode = keyCode;
+
+    if (isAzerty) { // 81 <> 65, 90 <> 87, 59 > 77
+      if (keycode == 81 || keycode == 65) {
+        if (keycode == 81) {
+          keycode = 65;
+        } else {
+          keycode = 81;
+        }
+      }
+
+      if (keycode == 90 || keycode == 87) {
+        if (keycode == 90) {
+          keycode = 87;
+        } else {
+          keycode = 90;
+        }
+      }
+
+      if (keycode == 59 || keycode == 77) {
+        if (keycode == 59) {
+          keycode = 77;
+        } else {
+          return;
+        }
+      }
+    }
+    textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(keycode+32) + "_");
+    addLog(char(keycode+32) + "\t1");
+  }
 }
 
 /*
@@ -576,8 +643,8 @@ void controlEvent(ControlEvent theEvent) {
     preference.setBoolean("GROUP"+id, groupOpen[id]);
     reSizeWindow();
   } else if (theEvent.isController()) {
-    if (sessionPhrase) {
-      if (theEvent.isFrom(textfieldRetranscribe)) {
+    if (theEvent.isFrom(textfieldRetranscribe)) {
+      if (sessionPhrase) {
         addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + theEvent.getStringValue());  
         newPhrase();
       }
@@ -616,6 +683,13 @@ void Listening(boolean theFlag) {
     }
   }
   addLog("LISTENING\t" + theFlag);
+}
+
+// Toggle
+void AZERTY_QWERTY(boolean theFlag) {
+  isAzerty = theFlag;
+  cp5.saveProperties("k3Set", "k3Set");
+  addLog("AZERTY_QWERTY\t" + isAzerty);
 }
 
 // Toggle
