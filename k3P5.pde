@@ -185,15 +185,16 @@ void setup() {
     .moveTo(groupPhrase)
     ;
 
-  cp5.addToggle("AZERTY_QWERTY")
+  cp5.addToggle("AzertyQwerty")
+    .setBroadcast(false)
     .setPosition(48, 4)
-    .setSize(68, 20)
+    .setSize(62, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     .moveTo(groupPhrase)
     .setBroadcast(true)
     ;
-
+  
   sliderTimer = cp5.addSlider("Timer")
     .setPosition(4, 40)
     .setSize(476, 16)
@@ -254,6 +255,7 @@ void setup() {
     ;
 
   cp5.addToggle("Mapping")
+    .setBroadcast(false)
     .setPosition(4, 28)
     .setSize(48, 20)
     .setValue(false)
@@ -323,6 +325,7 @@ void setup() {
     ;
 
   toggleListening = cp5.addToggle("Listening")
+    .setBroadcast(false)
     .setPosition(264, 4)
     .setSize(48, 20)
     .setValue(false)
@@ -405,7 +408,7 @@ void setup() {
   cp5.getProperties().move(cp5.getController("LayoutFileName"), "default", "k3Set");  
   cp5.getProperties().move(cp5.getController("Projection3d"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Emulate"), "default", "k3Set");
-  cp5.getProperties().move(cp5.getController("AZERTY_QWERTY"), "default", "k3Set");
+  cp5.getProperties().move(cp5.getController("AzertyQwerty"), "default", "k3Set");
   cp5.loadProperties(("k3Set"));
 
   preference.loading();
@@ -685,11 +688,12 @@ void Listening(boolean theFlag) {
   addLog("LISTENING\t" + theFlag);
 }
 
+
 // Toggle
-void AZERTY_QWERTY(boolean theFlag) {
+void AzertyQwerty(boolean theFlag) {
   isAzerty = theFlag;
   cp5.saveProperties("k3Set", "k3Set");
-  addLog("AZERTY_QWERTY\t" + isAzerty);
+  addLog("AzertyQwerty\t" + isAzerty);
 }
 
 // Toggle
