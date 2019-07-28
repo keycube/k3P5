@@ -571,6 +571,10 @@ void addCharToLog(char c, boolean isPress) {
   addLog(c + "\t" + isPress + "\t" + isAzerty + "\t" + isCube + "\t" + Session);
 }
 
+void addCharToLog(int keycode, boolean isPress) {
+  addLog(keycode + "\t" + isPress + "\t" + isAzerty + "\t" + isCube + "\t" + Session);
+}
+
 void addLog(String s) {
   s = dtfTiming.format(LocalTime.now()) + "\t" + s + "\n";
   textAreaConsole.append(s);
@@ -618,26 +622,41 @@ void handleKeyEvent(int keycode, boolean isPress) {
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-2) + "_");
     }
     addCharToLog('<', isPress);
-  }
-
+  } else 
   if (keycode == 10) { // enter
     addCharToLog('>', isPress);
     if (isPress) {
       textfieldRetranscribe.submit();
       textfieldRetranscribe.setText("_");
     }
-  }
-
+  } else 
   if (keycode == 32) { // space
     if (isPress) 
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + " _");
     addCharToLog('_', isPress);
-  }
-
-  if ((keycode >= 'A' && keycode <= 'Z') || (keycode == 59)) { // between 65 and 90 + 59 for M with azerty + 32 for space
+  } else
+  if (keycode == 59) { // (59 = M with AZERTY, 
+    if (isAzerty) { // 59 > 77
+      if (isPress)
+        textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(77+32) + "_");
+      addCharToLog(char(77+32), isPress);
+    } else {
+      addCharToLog(keycode, isPress);
+    }
+  } else
+  if (keycode == 77) {
+    if (isAzerty) {
+      addCharToLog(keycode, isPress);
+    } else {
+      if (isPress)
+        textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(77+32) + "_");
+      addCharToLog(char(77+32), isPress);
+    }
+  } else
+  if (keycode >= 'A' && keycode <= 'Z') { // between 65 and 90
     int newKeycode = keycode;
 
-    if (isAzerty) { // 81 <> 65, 90 <> 87, 59 > 77
+    if (isAzerty) { // 81 <> 65, 90 <> 87
       if (newKeycode == 81 || newKeycode == 65) {
         if (newKeycode == 81) {
           newKeycode = 65;
@@ -653,18 +672,12 @@ void handleKeyEvent(int keycode, boolean isPress) {
           newKeycode = 90;
         }
       }
-
-      if (newKeycode == 59 || newKeycode == 77) {
-        if (newKeycode == 59) {
-          newKeycode = 77;
-        } else {
-          return;
-        }
-      }
     }
     if (isPress) 
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(newKeycode+32) + "_");
     addCharToLog(char(newKeycode+32), isPress);
+  } else {
+    addCharToLog(keycode, isPress);
   }
 }
 
