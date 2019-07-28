@@ -768,6 +768,9 @@ public void Load() {
 
 // Button
 public void Start() {
+  sliderTimer.setValue(1200);
+  timer = millis() + 1000;
+  timerValue = 1200;
   sessionPhrase = true;
   newPhrase();
 }
