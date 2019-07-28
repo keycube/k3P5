@@ -121,7 +121,7 @@ void setup() {
   surface.setAlwaysOnTop(true);
   surface.setResizable(true);
 
-  dtfTiming = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
+  dtfTiming = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
   dtfYearMonth = DateTimeFormatter.ofPattern("YYYYMM");
 
   smooth();
