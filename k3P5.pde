@@ -190,7 +190,7 @@ void setup() {
   cp5.addToggle("CubeBoard")
     .setBroadcast(false)
     .setPosition(48, 4)
-    .setSize(48, 20)
+    .setSize(44, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     .moveTo(groupPhrase)
@@ -199,8 +199,8 @@ void setup() {
 
   cp5.addToggle("AzertyQwerty")
     .setBroadcast(false)
-    .setPosition(100, 4)
-    .setSize(48, 20)
+    .setPosition(96, 4)
+    .setSize(62, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     .moveTo(groupPhrase)
@@ -208,7 +208,7 @@ void setup() {
     ;
 
   cp5.addSlider("Session")
-    .setPosition(152, 4)
+    .setPosition(162, 4)
     .setWidth(160)
     .setRange(1, 6) // values can range from big to small as well
     .setValue(1)
