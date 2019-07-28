@@ -76,6 +76,7 @@ int timerValue = 1200;
 boolean sessionPhrase = false;
 
 boolean isAzerty = false;
+boolean isCube = false;
 
 /*
   Callback
@@ -185,10 +186,20 @@ void setup() {
     .moveTo(groupPhrase)
     ;
 
-  cp5.addToggle("AzertyQwerty")
+  cp5.addToggle("CubeBoard")
     .setBroadcast(false)
     .setPosition(48, 4)
-    .setSize(62, 20)
+    .setSize(48, 20)
+    .setValue(false)
+    .setMode(ControlP5.SWITCH)
+    .moveTo(groupPhrase)
+    .setBroadcast(true)
+    ;
+    
+  cp5.addToggle("AzertyQwerty")
+    .setBroadcast(false)
+    .setPosition(100, 4)
+    .setSize(48, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
     .moveTo(groupPhrase)
@@ -409,6 +420,7 @@ void setup() {
   cp5.getProperties().move(cp5.getController("Projection3d"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("Emulate"), "default", "k3Set");
   cp5.getProperties().move(cp5.getController("AzertyQwerty"), "default", "k3Set");
+  cp5.getProperties().move(cp5.getController("CubeBoard"), "default", "k3Set");
   cp5.loadProperties(("k3Set"));
 
   preference.loading();
@@ -540,8 +552,12 @@ void lookForKey(String buffer) {
       continue;
     }
 
-    addLog(viewer.lookForKey(s) + "\t0");
+    viewer.lookForKey(s);
   }
+}
+
+void addCharToLog(char c, boolean isPress) {
+  addLog(c + "\t" + isPress + "\t" + isAzerty + "\t" + isCube);
 }
 
 void addLog(String s) {
@@ -576,56 +592,68 @@ void keyPressed() {
     }
   }
 
+  handleKeyEvent(keyCode, true);
+}
+
+void keyReleased() {
+  handleKeyEvent(keyCode, false);
+}
+
+void handleKeyEvent(int keycode, boolean isPress) {
   String transcribed = textfieldRetranscribe.getText();
   
-  if (keyCode == 8) { // backspace
-    if (transcribed.length()-1 > 0) {
+  if (keycode == 8) { // backspace
+    if (transcribed.length()-1 > 0 && isPress) {
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-2) + "_");
     }
-    addLog("BKSP\t1");
+    addCharToLog('<', isPress);
   }
   
-  if (keyCode == 10) { // enter
-    addLog("ENTR\t1");
-    textfieldRetranscribe.submit();
-    textfieldRetranscribe.setText("_");
+  if (keycode == 10) { // enter
+    addCharToLog('>', isPress);
+    if (isPress) {
+      textfieldRetranscribe.submit();
+      textfieldRetranscribe.setText("_");
+    }    
   }
   
-  if (keyCode == 32) { // space
-    textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + " _");
-    addLog("SPCE\t1");
+  if (keycode == 32) { // space
+    if (isPress) 
+      textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + " _");
+    addCharToLog('_', isPress);
   }
   
-  if ((keyCode >= 'A' && keyCode <= 'Z') || (keyCode == 59)) { // between 65 and 90 + 59 for M with azerty + 32 for space
-    int keycode = keyCode;
+  if ((keycode >= 'A' && keycode <= 'Z') || (keycode == 59)) { // between 65 and 90 + 59 for M with azerty + 32 for space
+    int newKeycode = keycode;
 
     if (isAzerty) { // 81 <> 65, 90 <> 87, 59 > 77
-      if (keycode == 81 || keycode == 65) {
-        if (keycode == 81) {
-          keycode = 65;
+      if (newKeycode == 81 || newKeycode == 65) {
+        if (newKeycode == 81) {
+          newKeycode = 65;
         } else {
-          keycode = 81;
+          newKeycode = 81;
         }
       }
 
-      if (keycode == 90 || keycode == 87) {
-        if (keycode == 90) {
-          keycode = 87;
+      if (newKeycode == 90 || newKeycode == 87) {
+        if (newKeycode == 90) {
+          newKeycode = 87;
         } else {
-          keycode = 90;
+          newKeycode = 90;
         }
       }
 
-      if (keycode == 59 || keycode == 77) {
-        if (keycode == 59) {
-          keycode = 77;
+      if (newKeycode == 59 || newKeycode == 77) {
+        if (newKeycode == 59) {
+          newKeycode = 77;
         } else {
           return;
         }
       }
     }
-    textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(keycode+32) + "_");
-    addLog(char(keycode+32) + "\t1");
+    if (isPress) 
+      textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(newKeycode+32) + "_");
+    addCharToLog(char(newKeycode+32), isPress);
   }
 }
 
@@ -688,6 +716,12 @@ void Listening(boolean theFlag) {
   addLog("LISTENING\t" + theFlag);
 }
 
+// Toggle
+void CubeBoard(boolean theFlag) {
+  isCube = theFlag;
+  cp5.saveProperties("k3Set", "k3Set");
+  addLog("CubeBoard\t" + isCube);
+}
 
 // Toggle
 void AzertyQwerty(boolean theFlag) {
