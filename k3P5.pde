@@ -77,6 +77,7 @@ boolean sessionPhrase = false;
 
 boolean isAzerty = false;
 boolean isCube = false;
+int Session = 1;
 
 /*
   Callback
@@ -195,7 +196,7 @@ void setup() {
     .moveTo(groupPhrase)
     .setBroadcast(true)
     ;
-    
+
   cp5.addToggle("AzertyQwerty")
     .setBroadcast(false)
     .setPosition(100, 4)
@@ -205,7 +206,17 @@ void setup() {
     .moveTo(groupPhrase)
     .setBroadcast(true)
     ;
-  
+
+  cp5.addSlider("Session")
+    .setPosition(152, 4)
+    .setWidth(160)
+    .setRange(1, 6) // values can range from big to small as well
+    .setValue(1)
+    .setNumberOfTickMarks(6)
+    .setSliderMode(Slider.FLEXIBLE)
+    .moveTo(groupPhrase)
+    ;
+
   sliderTimer = cp5.addSlider("Timer")
     .setPosition(4, 40)
     .setSize(476, 16)
@@ -557,7 +568,7 @@ void lookForKey(String buffer) {
 }
 
 void addCharToLog(char c, boolean isPress) {
-  addLog(c + "\t" + isPress + "\t" + isAzerty + "\t" + isCube);
+  addLog(c + "\t" + isPress + "\t" + isAzerty + "\t" + isCube + "\t" + Session);
 }
 
 void addLog(String s) {
@@ -601,28 +612,28 @@ void keyReleased() {
 
 void handleKeyEvent(int keycode, boolean isPress) {
   String transcribed = textfieldRetranscribe.getText();
-  
+
   if (keycode == 8) { // backspace
     if (transcribed.length()-1 > 0 && isPress) {
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-2) + "_");
     }
     addCharToLog('<', isPress);
   }
-  
+
   if (keycode == 10) { // enter
     addCharToLog('>', isPress);
     if (isPress) {
       textfieldRetranscribe.submit();
       textfieldRetranscribe.setText("_");
-    }    
+    }
   }
-  
+
   if (keycode == 32) { // space
     if (isPress) 
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + " _");
     addCharToLog('_', isPress);
   }
-  
+
   if ((keycode >= 'A' && keycode <= 'Z') || (keycode == 59)) { // between 65 and 90 + 59 for M with azerty + 32 for space
     int newKeycode = keycode;
 
