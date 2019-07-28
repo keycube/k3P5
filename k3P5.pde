@@ -563,16 +563,26 @@ void lookForKey(String buffer) {
       continue;
     }
 
-    viewer.lookForKey(s);
+    if (isCube) {
+      addk3CharToLog(viewer.lookForKey(s));
+    } else {
+      viewer.lookForKey(s);
+    }
   }
 }
 
-void addCharToLog(char c, boolean isPress) {
-  addLog(c + "\t" + isPress + "\t" + isAzerty + "\t" + isCube + "\t" + Session);
+void addk3CharToLog(String s) {
+  addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + s);
 }
 
-void addCharToLog(int keycode, boolean isPress) {
-  addLog(keycode + "\t" + isPress + "\t" + isAzerty + "\t" + isCube + "\t" + Session);
+void addkbCharToLog(char c, boolean isPress) {
+  if (!isCube)
+    addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + isPress + "\t" + c);
+}
+
+void addkbCharToLog(int keycode, boolean isPress) {
+  if (!isCube)
+    addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + isPress + "\t" + keycode);
 }
 
 void addLog(String s) {
@@ -621,10 +631,10 @@ void handleKeyEvent(int keycode, boolean isPress) {
     if (transcribed.length()-1 > 0 && isPress) {
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-2) + "_");
     }
-    addCharToLog('<', isPress);
+    addkbCharToLog('<', isPress);
   } else 
   if (keycode == 10) { // enter
-    addCharToLog('>', isPress);
+    addkbCharToLog('>', isPress);
     if (isPress) {
       textfieldRetranscribe.submit();
       textfieldRetranscribe.setText("_");
@@ -633,24 +643,24 @@ void handleKeyEvent(int keycode, boolean isPress) {
   if (keycode == 32) { // space
     if (isPress) 
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + " _");
-    addCharToLog('_', isPress);
+    addkbCharToLog('_', isPress);
   } else
   if (keycode == 59) { // (59 = M with AZERTY, 
     if (isAzerty) { // 59 > 77
       if (isPress)
         textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(77+32) + "_");
-      addCharToLog(char(77+32), isPress);
+      addkbCharToLog(char(77+32), isPress);
     } else {
-      addCharToLog(keycode, isPress);
+      addkbCharToLog(keycode, isPress);
     }
   } else
   if (keycode == 77) {
     if (isAzerty) {
-      addCharToLog(keycode, isPress);
+      addkbCharToLog(keycode, isPress);
     } else {
       if (isPress)
         textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(77+32) + "_");
-      addCharToLog(char(77+32), isPress);
+      addkbCharToLog(char(77+32), isPress);
     }
   } else
   if (keycode >= 'A' && keycode <= 'Z') { // between 65 and 90
@@ -675,9 +685,9 @@ void handleKeyEvent(int keycode, boolean isPress) {
     }
     if (isPress) 
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(newKeycode+32) + "_");
-    addCharToLog(char(newKeycode+32), isPress);
+    addkbCharToLog(char(newKeycode+32), isPress);
   } else {
-    addCharToLog(keycode, isPress);
+    addkbCharToLog(keycode, isPress);
   }
 }
 
