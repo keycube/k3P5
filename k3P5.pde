@@ -802,6 +802,7 @@ public void Load() {
 
 // Button
 public void Start() {
+  addLog("START SESSION " + Session);
   sliderTimer.setValue(1200);
   timer = millis() + 1000;
   timerValue = 1200;
