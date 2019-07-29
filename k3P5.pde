@@ -710,7 +710,9 @@ void controlEvent(ControlEvent theEvent) {
   } else if (theEvent.isController()) {
     if (theEvent.isFrom(textfieldRetranscribe)) {
       if (sessionPhrase) {
-        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + theEvent.getStringValue());  
+        String s = theEvent.getStringValue();
+        s = s.substring(0, s.length()-1);
+        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s));
         newPhrase();
       }
     }

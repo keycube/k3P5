@@ -11,6 +11,31 @@ import java.util.Map;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
+// Dynamic Programming Approach of Levenshtein Distance from https://www.baeldung.com/java-levenshtein-distance
+public static int costOfSubstitution(char a, char b) {
+  return a == b ? 0 : 1;
+}
+
+public static int LeveinshteinDistance(String x, String y) {
+  int[][] dp = new int[x.length() + 1][y.length() + 1];
+
+  for (int i = 0; i <= x.length(); i++) {
+    for (int j = 0; j <= y.length(); j++) {
+      if (i == 0) {
+        dp[i][j] = j;
+      } else if (j == 0) {
+        dp[i][j] = i;
+      } else {
+        dp[i][j] = min(dp[i - 1][j - 1] 
+          + costOfSubstitution(x.charAt(i - 1), y.charAt(j - 1)), 
+          dp[i - 1][j] + 1, 
+          dp[i][j - 1] + 1);
+      }
+    }
+  }
+  return dp[x.length()][y.length()];
+}
+
 /**
  * Appends text to the end of a text file located in the data directory, 
  * creates the file if it does not exist.
@@ -126,20 +151,20 @@ static int robotCodeFromKeyCode(int keyNumber) {
   // special keys
   mMap.put(1077, KeyEvent.VK_SEMICOLON); // ",?"
   mMap.put(59, KeyEvent.VK_SEMICOLON); // ",?"
-  
+
   mMap.put(44, KeyEvent.VK_COMMA); // ";." 
   mMap.put(45, KeyEvent.VK_MINUS); // ")°" 
   mMap.put(46, KeyEvent.VK_PERIOD); // ":/" 
   mMap.put(47, KeyEvent.VK_SLASH); // "=+" 
   mMap.put(61, KeyEvent.VK_EQUALS); // "-_" 
   mMap.put(93, KeyEvent.VK_CLOSE_BRACKET); // "$*" 
-  
+
   mMap.put(222, KeyEvent.VK_QUOTE); // "ù%" 
   mMap.put(138, KeyEvent.VK_QUOTE); // "ù%"
-  
+
   mMap.put(91, KeyEvent.VK_OPEN_BRACKET); // "^¨" 
   mMap.put(92, KeyEvent.VK_BACK_SLASH); // "`£"
-  
+
   mMap.put(192, KeyEvent.VK_BACK_QUOTE); // "<>"
   mMap.put(96, KeyEvent.VK_BACK_QUOTE); // "<>"
 
@@ -152,7 +177,7 @@ static int robotCodeFromKeyCode(int keyNumber) {
   mMap.put(18, KeyEvent.VK_ALT);
   mMap.put(157, KeyEvent.VK_META);
   mMap.put(32, KeyEvent.VK_SPACE);
-  
+
   mMap.put(12, KeyEvent.VK_CAPS_LOCK);
 
   //mMap.put(,KeyEvent.VK_);
@@ -216,11 +241,11 @@ static String textFromKeyCode(int keyNumber) {
   // special keys
   mMap.put(1077, "; :");
   mMap.put(59, "; :");
-  
+
   //mMap.put(192, "§ ±");
   mMap.put(192, "` ~");
   mMap.put(96, "` ~");
-  
+
   mMap.put(44, ", <");
   mMap.put(45, "- _");  
   mMap.put(46, ". >");
@@ -229,7 +254,7 @@ static String textFromKeyCode(int keyNumber) {
 
   mMap.put(222, "' \"");
   mMap.put(138, "' \""); // 138 is key ". DEL" from numpad because " ' return the same as right arrow (code 39)
-  
+
   mMap.put(92, "\\ |");
   mMap.put(91, "[ {");
   mMap.put(93, "] }");
@@ -244,7 +269,7 @@ static String textFromKeyCode(int keyNumber) {
   mMap.put(18, "ALT");
   mMap.put(157, "META");
   mMap.put(32, "SPCE");
-  
+
   mMap.put(12, "CLCK"); // 12 is key for "Num Lock" from numpad because Caps Lock is not recognized
 
   //mMap.put(57, "LOCK"); // change it, understand why 1022 is not right, check website https://docs.oracle.com/javase/8/docs/api/constant-values.html#java.awt.event.KeyEvent.KEY_FIRST
