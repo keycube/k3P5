@@ -79,6 +79,10 @@ boolean isAzerty = false;
 boolean isCube = false;
 int Session = 1;
 
+float firstCharacterTiming = -1f;
+float beforePreviousCharacterTiming = 0f;
+float previousCharacterTiming = 0f;
+
 /*
   Callback
  */
@@ -572,10 +576,24 @@ void lookForKey(String buffer) {
 }
 
 void addk3CharToLog(String s) {
+  if (firstCharacterTiming == -1f) {
+    firstCharacterTiming = millis();
+  }
+  if (s.substring(0, 4).equals("true")) {
+    beforePreviousCharacterTiming = previousCharacterTiming;
+    previousCharacterTiming = millis(); 
+  }
   addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + s);
 }
 
 void addkbCharToLog(char c, boolean isPress) {
+  if (firstCharacterTiming == -1f) {
+    firstCharacterTiming = millis();
+  }
+  if (isPress) {
+    beforePreviousCharacterTiming = previousCharacterTiming;
+    previousCharacterTiming = millis();
+  }
   if (!isCube)
     addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + isPress + "\t" + c);
 }
@@ -712,8 +730,9 @@ void controlEvent(ControlEvent theEvent) {
       if (sessionPhrase) {
         String s = theEvent.getStringValue();
         s = s.substring(0, s.length()-1);
-        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s));
+        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + "\t" + (beforePreviousCharacterTiming - firstCharacterTiming));
         newPhrase();
+        firstCharacterTiming = -1f;
       }
     }
     int index = (int) theEvent.getController().getValue();
@@ -804,6 +823,9 @@ public void Load() {
 
 // Button
 public void Start() {
+  textfieldRetranscribe.submit();
+  textfieldRetranscribe.setText("_");
+  firstCharacterTiming = -1f;
   addLog("START SESSION " + Session);
   sliderTimer.setValue(1200);
   timer = millis() + 1000;
