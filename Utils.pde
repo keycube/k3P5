@@ -11,6 +11,10 @@ import java.util.Map;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
+public static float WordsPerMinute(String transcribedText, float timing) {
+  return (transcribedText.length()-1)/timing*12f; // 60 * 1/5
+}
+
 // Dynamic Programming Approach of Levenshtein Distance from https://www.baeldung.com/java-levenshtein-distance
 public static int costOfSubstitution(char a, char b) {
   return a == b ? 0 : 1;
