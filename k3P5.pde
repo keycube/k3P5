@@ -452,6 +452,12 @@ void setup() {
 
   loadPhrases();
   timer = millis();
+  
+  //Align("quickly", "qucehkly", LeveinshteinMatrix("quickly", "qucehkly"), "quickly".length(), "qucehkly".length(), "", "");
+  println("errorRate");
+  println(LeveinshteinDistance("quickly", "qucehkly") * 100.0f / Math.max("quickly".length(), "qucehkly".length()));
+  
+  //println(Math.max("quickly".length(), "qucehkly".length()));
 }
 
 // Draw

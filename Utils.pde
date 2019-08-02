@@ -11,6 +11,26 @@ import java.util.Map;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
+
+public static void Align(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
+  if (X == 0 && Y == 0) {
+    println(AA);
+    println(AB);
+    return;
+  }
+  if (X > 0 && Y > 0) {
+    if (D[X][Y] == D[X-1][Y-1] && A.charAt(X-1) == B.charAt(Y-1))
+      Align(A, B, D, X-1, Y-1, A.charAt(X-1) + AA, B.charAt(Y-1) + AB);
+    if (D[X][Y] == D[X-1][Y-1] + 1)
+      Align(A, B, D, X-1, Y-1, A.charAt(X-1) + AA, B.charAt(Y-1) + AB);
+  }
+  if (X > 0 && D[X][Y] == D[X-1][Y] + 1)
+    Align(A, B, D, X-1, Y, A.charAt(X-1) + AA, "-" + AB);
+  if (Y > 0 && D[X][Y] == D[X][Y-1] + 1)
+    Align(A, B, D, X, Y-1, "-" + AA, B.charAt(Y-1) + AB);
+  return;
+}
+
 public static float WordsPerMinute(String transcribedText, float timing) {
   return (transcribedText.length()-1)/timing*12f; // 60 * 1/5
 }
@@ -21,6 +41,10 @@ public static int costOfSubstitution(char a, char b) {
 }
 
 public static int LeveinshteinDistance(String x, String y) {
+  return LeveinshteinMatrix(x, y)[x.length()][y.length()];
+}
+
+public static int[][] LeveinshteinMatrix(String x, String y) {
   int[][] dp = new int[x.length() + 1][y.length() + 1];
 
   for (int i = 0; i <= x.length(); i++) {
@@ -37,7 +61,7 @@ public static int LeveinshteinDistance(String x, String y) {
       }
     }
   }
-  return dp[x.length()][y.length()];
+  return dp;
 }
 
 /**
