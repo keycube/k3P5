@@ -784,6 +784,8 @@ void Listening(boolean theFlag) {
         // Open the port you are using at the rate you want:
         myPort = new Serial(this, Serial.list()[portNumber], 9600);
       }
+    } else {
+      myPort = null;
     }
   }
   addLog("LISTENING\t" + theFlag);
