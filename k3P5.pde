@@ -220,6 +220,18 @@ void setup() {
     .setSliderMode(Slider.FLEXIBLE)
     .moveTo(groupPhrase)
     ;
+    
+  cp5.addButton("Pause")
+    .setPosition(396, 4)
+    .setSize(40, 20)
+    .moveTo(groupPhrase)
+    ;
+    
+  cp5.addButton("Resume")
+    .setPosition(440, 4)
+    .setSize(40, 20)
+    .moveTo(groupPhrase)
+    ;
 
   sliderTimer = cp5.addSlider("Timer")
     .setPosition(4, 40)
@@ -809,6 +821,21 @@ void Emulate(boolean theFlag) {
 void Mapping(boolean theFlag) {
   viewer.setMapping(theFlag);
   addLog("MAPPING\t" + theFlag);
+}
+
+public void Pause() {
+  if (sessionPhrase) {
+    sessionPhrase = false;
+    addLog("PAUSE\t");
+  } 
+}
+
+public void Resume() {
+  if (!sessionPhrase) {
+    timer = millis() + 1000;
+    sessionPhrase = true;
+    addLog("RESUME\t");
+  }
 }
 
 // Button
