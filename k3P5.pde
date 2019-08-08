@@ -83,6 +83,8 @@ float firstCharacterTiming = -1f;
 float beforePreviousCharacterTiming = 0f;
 float previousCharacterTiming = 0f;
 
+int keystrokeCount = 0;
+
 /*
   Callback
  */
@@ -603,10 +605,12 @@ void startCounting() {
   firstCharacterTiming = millis();
   println("startCounting");
   textfieldPhrase.setColorValue(color(160, 238, 255));
+  keystrokeCount = 1;
 }
 
 void addk3CharToLog(String s) {
   if (s.substring(0, 4).equals("true")) { // equivalent of if (isPress)
+    keystrokeCount += 1;
     if (firstCharacterTiming == -1f) {
       startCounting();
     }
@@ -618,6 +622,7 @@ void addk3CharToLog(String s) {
 
 void addkbCharToLog(char c, boolean isPress) {
   if (isPress) {
+    keystrokeCount += 1;
     if (firstCharacterTiming == -1f) {
       startCounting();
     }
@@ -766,8 +771,8 @@ void controlEvent(ControlEvent theEvent) {
         String s = theEvent.getStringValue();
         s = s.substring(0, s.length()-1);
         float timingS = (beforePreviousCharacterTiming - firstCharacterTiming)/1000f;
-        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + "\t" + timingS + "\t" + WordsPerMinute(s, timingS));
-        newPhrase();       
+        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + "\t" + timingS + "\t" + WordsPerMinute(s, timingS) + "\t" + (keystrokeCount-1) + "\t" + KSPC(keystrokeCount-1, s.length())); // minus 1 to keystrokeCount to remove Enter
+        newPhrase();
       }
       stopCounting();
     }

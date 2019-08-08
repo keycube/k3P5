@@ -31,6 +31,10 @@ public static void Align(String A, String B, int[][] D, int X, int Y, String AA,
   return;
 }
 
+public static float KSPC(int keystrokeCount, int transcribedTextLength) {
+  return (float)keystrokeCount/transcribedTextLength;
+}
+
 public static float WordsPerMinute(String transcribedText, float timing) {
   return (transcribedText.length()-1f)/timing*12f; // 60 * 1/5
 }
