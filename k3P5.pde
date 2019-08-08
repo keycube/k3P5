@@ -599,10 +599,16 @@ void lookForKey(String buffer) {
   }
 }
 
+void startCounting() {
+  firstCharacterTiming = millis();
+  println("startCounting");
+  textfieldPhrase.setColorValue(color(160, 238, 255));
+}
+
 void addk3CharToLog(String s) {
   if (s.substring(0, 4).equals("true")) { // equivalent of if (isPress)
     if (firstCharacterTiming == -1f) {
-      firstCharacterTiming = millis();
+      startCounting();
     }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis(); 
@@ -613,7 +619,7 @@ void addk3CharToLog(String s) {
 void addkbCharToLog(char c, boolean isPress) {
   if (isPress) {
     if (firstCharacterTiming == -1f) {
-      firstCharacterTiming = millis();
+      startCounting();
     }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis();
@@ -737,6 +743,11 @@ void handleKeyEvent(int keycode, boolean isPress) {
 ** ControlP5 Methods
  */
 
+void stopCounting() {
+  firstCharacterTiming = -1f;
+  textfieldPhrase.setColorValue(color(255));
+}
+
 void controlEvent(ControlEvent theEvent) {
   // DropdownList is of type ControlGroup.
   // A controlEvent will be triggered from inside the ControlGroup class.
@@ -756,9 +767,9 @@ void controlEvent(ControlEvent theEvent) {
         s = s.substring(0, s.length()-1);
         float timingS = (beforePreviousCharacterTiming - firstCharacterTiming)/1000f;
         addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + "\t" + timingS + "\t" + WordsPerMinute(s, timingS));
-        newPhrase();
-        firstCharacterTiming = -1f;
+        newPhrase();       
       }
+      stopCounting();
     }
     int index = (int) theEvent.getController().getValue();
     if (theEvent.isFrom(cp5.getController("SerialPortList"))) {
@@ -835,6 +846,9 @@ void Mapping(boolean theFlag) {
 public void Pause() {
   if (sessionPhrase) {
     sessionPhrase = false;
+    textfieldRetranscribe.submit();
+    textfieldRetranscribe.setText("_");
+    textfieldRetranscribe.setColorValue(color(0));
     addLog("PAUSE\t");
   } 
 }
@@ -843,6 +857,7 @@ public void Resume() {
   if (!sessionPhrase) {
     timer = millis() + 1000;
     sessionPhrase = true;
+    textfieldRetranscribe.setColorValue(color(255));
     addLog("RESUME\t");
   }
 }
