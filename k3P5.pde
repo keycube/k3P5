@@ -362,9 +362,15 @@ void setup() {
     .close()
     ;
 
+  cp5.addButton("Refresh")
+    .setPosition(264, 4)
+    .setSize(40, 20)
+    .moveTo(groupPort)
+    ;
+    
   toggleListening = cp5.addToggle("Listening")
     .setBroadcast(false)
-    .setPosition(264, 4)
+    .setPosition(308, 4)
     .setSize(48, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
@@ -868,4 +874,11 @@ public void Start() {
   timerValue = 1200;
   sessionPhrase = true;
   newPhrase();
+}
+
+// Button
+public void Refresh() {
+  println("Refresh()");
+  cp5.get(ScrollableList.class, "SerialPortList").clear();
+  cp5.get(ScrollableList.class, "SerialPortList").addItems(Serial.list());
 }
