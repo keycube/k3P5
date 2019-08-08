@@ -594,10 +594,10 @@ void lookForKey(String buffer) {
 }
 
 void addk3CharToLog(String s) {
-  if (firstCharacterTiming == -1f) {
-    firstCharacterTiming = millis();
-  }
-  if (s.substring(0, 4).equals("true")) {
+  if (s.substring(0, 4).equals("true")) { // equivalent of if (isPress)
+    if (firstCharacterTiming == -1f) {
+      firstCharacterTiming = millis();
+    }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis(); 
   }
@@ -605,10 +605,10 @@ void addk3CharToLog(String s) {
 }
 
 void addkbCharToLog(char c, boolean isPress) {
-  if (firstCharacterTiming == -1f) {
-    firstCharacterTiming = millis();
-  }
   if (isPress) {
+    if (firstCharacterTiming == -1f) {
+      firstCharacterTiming = millis();
+    }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis();
   }
@@ -748,7 +748,8 @@ void controlEvent(ControlEvent theEvent) {
       if (sessionPhrase) {
         String s = theEvent.getStringValue();
         s = s.substring(0, s.length()-1);
-        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + "\t" + (beforePreviousCharacterTiming - firstCharacterTiming));
+        float timingS = (beforePreviousCharacterTiming - firstCharacterTiming)/1000f;
+        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + "\t" + timingS + "\t" + WordsPerMinute(s, timingS));
         newPhrase();
         firstCharacterTiming = -1f;
       }

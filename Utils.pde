@@ -32,7 +32,7 @@ public static void Align(String A, String B, int[][] D, int X, int Y, String AA,
 }
 
 public static float WordsPerMinute(String transcribedText, float timing) {
-  return (transcribedText.length()-1)/timing*12f; // 60 * 1/5
+  return (transcribedText.length()-1f)/timing*12f; // 60 * 1/5
 }
 
 // Dynamic Programming Approach of Levenshtein Distance from https://www.baeldung.com/java-levenshtein-distance
