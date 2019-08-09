@@ -530,6 +530,10 @@ void draw() {
       timer += 1000;
       timerValue -= 1;
       sliderTimer.setValue(timerValue);
+      if (sliderTimer.getValue() == 0) {
+        addLog("FINISH (time due) SESSION " + Session);
+        sessionPhrase = false;
+      }
     }
   }
 }
