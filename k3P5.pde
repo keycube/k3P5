@@ -90,6 +90,8 @@ String fullAB;
 int countNbAlignment;
 
 String fullInputStream = "";
+Textlabel textlabelWPM;
+Textlabel textlabelErrorRate;
 
 
 /*
@@ -190,7 +192,7 @@ void setup() {
 
   Group groupPhrase = cp5.addGroup("Phrase")
     .setBackgroundColor(160)
-    .setBackgroundHeight(132)
+    .setBackgroundHeight(210)
     .setId(3)
     ;
 
@@ -202,7 +204,7 @@ void setup() {
 
   cp5.addToggle("CubeBoard")
     .setBroadcast(false)
-    .setPosition(48, 4)
+    .setPosition(4, 28)
     .setSize(44, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
@@ -212,7 +214,7 @@ void setup() {
 
   cp5.addToggle("AzertyQwerty")
     .setBroadcast(false)
-    .setPosition(96, 4)
+    .setPosition(52, 28)
     .setSize(62, 20)
     .setValue(false)
     .setMode(ControlP5.SWITCH)
@@ -221,7 +223,7 @@ void setup() {
     ;
 
   cp5.addSlider("Session")
-    .setPosition(162, 4)
+    .setPosition(118, 28)
     .setWidth(160)
     .setRange(1, 6) // values can range from big to small as well
     .setValue(1)
@@ -243,7 +245,7 @@ void setup() {
     ;
 
   sliderTimer = cp5.addSlider("Timer")
-    .setPosition(4, 40)
+    .setPosition(4, 64)
     .setSize(476, 16)
     .setRange(0, 1200)
     .setValue(1200)
@@ -255,7 +257,7 @@ void setup() {
 
   textfieldPhrase = cp5.addTextfield("fieldPhrase")
     .setFont(cfont)
-    .setPosition(4, 60)
+    .setPosition(4, 84)
     .setSize(476, 32)
     .setText("abcdefghijklmnopqrstuvwxyz")
     .moveTo(groupPhrase)
@@ -265,12 +267,30 @@ void setup() {
   textfieldRetranscribe = cp5.addTextfield("fieldRetranscribe")
     .setText("")
     .setFont(cfont)
-    .setPosition(4, 96)
+    .setPosition(4, 120)
     .setSize(476, 32)
     .moveTo(groupPhrase)
     .setText("_")
     ;
   textfieldRetranscribe.getCaptionLabel().setVisible(false);
+
+  textlabelWPM = cp5.addTextlabel("WPM")
+    .setText("- wpm")
+    .setFont(cfont)
+    .setPosition(360, 156)
+    .setWidth(40)
+    .setHeight(20)
+    .moveTo(groupPhrase)
+    ;
+    
+  textlabelErrorRate = cp5.addTextlabel("ErrorRate")
+    .setText("- %")
+    .setFont(cfont)
+    .setPosition(360, 180)
+    .setWidth(40)
+    .setHeight(20)
+    .moveTo(groupPhrase)
+    ;
 
   /*
   LAYOUT
@@ -626,7 +646,7 @@ void addk3CharToLog(String s) {
     }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis();
-    
+
     fullInputStream += s;
   }
   addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + s);
@@ -640,7 +660,7 @@ void addkbCharToLog(char c, boolean isPress) {
     }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis();
-    
+
     fullInputStream += c;
   }
   if (!isCube)
@@ -781,24 +801,30 @@ void controlEvent(ControlEvent theEvent) {
     reSizeWindow();
   } else if (theEvent.isController()) {
     if (theEvent.isFrom(textfieldRetranscribe)) {
+      String s = theEvent.getStringValue();
+      s = s.substring(0, s.length()-1);
+      float timingS = (beforePreviousCharacterTiming - firstCharacterTiming)/1000f;
+      String presentedText = textfieldPhrase.getText(); //phrases.get(phraseIndex);
+      float LD = LeveinshteinDistance(presentedText, s);
+      float WPM = WordsPerMinute(s, timingS);
+      float errorRate = LD / MeanSizeAlignments(presentedText, s, LeveinshteinMatrix(presentedText, s), presentedText.length(), s.length(), "", "") * 100f;
       if (sessionPhrase) {
-        String s = theEvent.getStringValue();
-        s = s.substring(0, s.length()-1);
-        float timingS = (beforePreviousCharacterTiming - firstCharacterTiming)/1000f;
         addLog("DONE" +
-          "\t" + phrases.get(phraseIndex) + 
+          "\t" + presentedText + 
           "\t" + s + 
-          "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + 
+          "\t" + LD + 
           "\t" + timingS + 
-          "\t" + WordsPerMinute(s, timingS) + 
+          "\t" + WPM + 
           "\t" + (keystrokeCount-1) + 
           "\t" + KSPC(keystrokeCount-1, s.length()) + // minus 1 to keystrokeCount to remove Enter
-          "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) / MeanSizeAlignments(phrases.get(phraseIndex), s, LeveinshteinMatrix(phrases.get(phraseIndex), s), phrases.get(phraseIndex).length(), s.length(), "", "") * 100f +
+          "\t" + errorRate +
           "\t" + fullInputStream          
           );
-          
+
         newPhrase(); // public float MeanSizeAlignments(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
       }
+      textlabelWPM.setText(WPM + " wpm");
+      textlabelErrorRate.setText(errorRate + " %");
       stopCounting();
     }
     int index = (int) theEvent.getController().getValue();
