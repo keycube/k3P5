@@ -85,6 +85,11 @@ float previousCharacterTiming = 0f;
 
 int keystrokeCount = 0;
 
+String fullAA;
+String fullAB;
+int countNbAlignment;
+
+
 /*
   Callback
  */
@@ -222,13 +227,13 @@ void setup() {
     .setSliderMode(Slider.FLEXIBLE)
     .moveTo(groupPhrase)
     ;
-    
+
   cp5.addButton("Pause")
     .setPosition(396, 4)
     .setSize(40, 20)
     .moveTo(groupPhrase)
     ;
-    
+
   cp5.addButton("Resume")
     .setPosition(440, 4)
     .setSize(40, 20)
@@ -369,7 +374,7 @@ void setup() {
     .setSize(40, 20)
     .moveTo(groupPort)
     ;
-    
+
   toggleListening = cp5.addToggle("Listening")
     .setBroadcast(false)
     .setPosition(308, 4)
@@ -472,11 +477,13 @@ void setup() {
 
   loadPhrases();
   timer = millis();
-  
-  //Align("quickly", "qucehkly", LeveinshteinMatrix("quickly", "qucehkly"), "quickly".length(), "qucehkly".length(), "", "");
+
+  float MSA = MeanSizeAlignments("quickly", "qucehkly", LeveinshteinMatrix("quickly", "qucehkly"), "quickly".length(), "qucehkly".length(), "", "");
+  println("MSA= " + MSA);
   println("errorRate");
   println(LeveinshteinDistance("quickly", "qucehkly") * 100.0f / Math.max("quickly".length(), "qucehkly".length()));
-  
+  println(LeveinshteinDistance("quickly", "qucehkly") * 100.0f / MSA);
+
   //println(Math.max("quickly".length(), "qucehkly".length()));
 }
 
@@ -615,7 +622,7 @@ void addk3CharToLog(String s) {
       startCounting();
     }
     beforePreviousCharacterTiming = previousCharacterTiming;
-    previousCharacterTiming = millis(); 
+    previousCharacterTiming = millis();
   }
   addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + s);
 }
@@ -698,50 +705,50 @@ void handleKeyEvent(int keycode, boolean isPress) {
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + " _");
     addkbCharToLog('_', isPress);
   } else
-  if (keycode == 59) { // (59 = M with AZERTY, 
-    if (isAzerty) { // 59 > 77
-      if (isPress)
-        textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(77+32) + "_");
-      addkbCharToLog(char(77+32), isPress);
-    } else {
-      addkbCharToLog(keycode, isPress);
-    }
-  } else
-  if (keycode == 77) {
-    if (isAzerty) {
-      addkbCharToLog(keycode, isPress);
-    } else {
-      if (isPress)
-        textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(77+32) + "_");
-      addkbCharToLog(char(77+32), isPress);
-    }
-  } else
-  if (keycode >= 'A' && keycode <= 'Z') { // between 65 and 90
-    int newKeycode = keycode;
-
-    if (isAzerty) { // 81 <> 65, 90 <> 87
-      if (newKeycode == 81 || newKeycode == 65) {
-        if (newKeycode == 81) {
-          newKeycode = 65;
-        } else {
-          newKeycode = 81;
-        }
+    if (keycode == 59) { // (59 = M with AZERTY, 
+      if (isAzerty) { // 59 > 77
+        if (isPress)
+          textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(77+32) + "_");
+        addkbCharToLog(char(77+32), isPress);
+      } else {
+        addkbCharToLog(keycode, isPress);
       }
-
-      if (newKeycode == 90 || newKeycode == 87) {
-        if (newKeycode == 90) {
-          newKeycode = 87;
+    } else
+      if (keycode == 77) {
+        if (isAzerty) {
+          addkbCharToLog(keycode, isPress);
         } else {
-          newKeycode = 90;
+          if (isPress)
+            textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(77+32) + "_");
+          addkbCharToLog(char(77+32), isPress);
         }
-      }
-    }
-    if (isPress) 
-      textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(newKeycode+32) + "_");
-    addkbCharToLog(char(newKeycode+32), isPress);
-  } else {
-    addkbCharToLog(keycode, isPress);
-  }
+      } else
+        if (keycode >= 'A' && keycode <= 'Z') { // between 65 and 90
+          int newKeycode = keycode;
+
+          if (isAzerty) { // 81 <> 65, 90 <> 87
+            if (newKeycode == 81 || newKeycode == 65) {
+              if (newKeycode == 81) {
+                newKeycode = 65;
+              } else {
+                newKeycode = 81;
+              }
+            }
+
+            if (newKeycode == 90 || newKeycode == 87) {
+              if (newKeycode == 90) {
+                newKeycode = 87;
+              } else {
+                newKeycode = 90;
+              }
+            }
+          }
+          if (isPress) 
+            textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-1) + char(newKeycode+32) + "_");
+          addkbCharToLog(char(newKeycode+32), isPress);
+        } else {
+          addkbCharToLog(keycode, isPress);
+        }
 }
 
 /*
@@ -771,8 +778,16 @@ void controlEvent(ControlEvent theEvent) {
         String s = theEvent.getStringValue();
         s = s.substring(0, s.length()-1);
         float timingS = (beforePreviousCharacterTiming - firstCharacterTiming)/1000f;
-        addLog("DONE\t" + phrases.get(phraseIndex) + "\t" + s + "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + "\t" + timingS + "\t" + WordsPerMinute(s, timingS) + "\t" + (keystrokeCount-1) + "\t" + KSPC(keystrokeCount-1, s.length())); // minus 1 to keystrokeCount to remove Enter
-        newPhrase();
+        addLog("DONE" +
+          "\t" + phrases.get(phraseIndex) + 
+          "\t" + s + 
+          "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) + 
+          "\t" + timingS + 
+          "\t" + WordsPerMinute(s, timingS) + 
+          "\t" + (keystrokeCount-1) + 
+          "\t" + KSPC(keystrokeCount-1, s.length()) + // minus 1 to keystrokeCount to remove Enter
+          "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) / MeanSizeAlignments(phrases.get(phraseIndex), s, LeveinshteinMatrix(phrases.get(phraseIndex), s), phrases.get(phraseIndex).length(), s.length(), "", "") * 100f);
+        newPhrase(); // public float MeanSizeAlignments(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
       }
       stopCounting();
     }
@@ -855,7 +870,7 @@ public void Pause() {
     textfieldRetranscribe.setText("_");
     textfieldRetranscribe.setColorValue(color(0));
     addLog("PAUSE\t");
-  } 
+  }
 }
 
 public void Resume() {
@@ -901,4 +916,37 @@ public void Refresh() {
   println("Refresh()");
   cp5.get(ScrollableList.class, "SerialPortList").clear();
   cp5.get(ScrollableList.class, "SerialPortList").addItems(Serial.list());
+}
+
+public float MeanSizeAlignments(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
+  fullAA = "";
+  fullAB = "";
+  countNbAlignment = 0;
+  Align(A, B, D, X, Y, AA, AB);
+  println("fullAA " + fullAA);
+  println("fullAB " + fullAB);
+  println("countNbAlignment " + countNbAlignment);
+  return (float)fullAA.length()/countNbAlignment;
+}
+
+public void Align(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
+  if (X == 0 && Y == 0) {
+    fullAA += AA;
+    fullAB += AB;
+    countNbAlignment += 1;
+    println(AA);
+    println(AB);
+    return;
+  }
+  if (X > 0 && Y > 0) {
+    if (D[X][Y] == D[X-1][Y-1] && A.charAt(X-1) == B.charAt(Y-1))
+      Align(A, B, D, X-1, Y-1, A.charAt(X-1) + AA, B.charAt(Y-1) + AB);
+    if (D[X][Y] == D[X-1][Y-1] + 1)
+      Align(A, B, D, X-1, Y-1, A.charAt(X-1) + AA, B.charAt(Y-1) + AB);
+  }
+  if (X > 0 && D[X][Y] == D[X-1][Y] + 1)
+    Align(A, B, D, X-1, Y, A.charAt(X-1) + AA, "-" + AB);
+  if (Y > 0 && D[X][Y] == D[X][Y-1] + 1)
+    Align(A, B, D, X, Y-1, "-" + AA, B.charAt(Y-1) + AB);
+  return;
 }

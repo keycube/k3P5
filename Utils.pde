@@ -11,26 +11,6 @@ import java.util.Map;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
-
-public static void Align(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
-  if (X == 0 && Y == 0) {
-    println(AA);
-    println(AB);
-    return;
-  }
-  if (X > 0 && Y > 0) {
-    if (D[X][Y] == D[X-1][Y-1] && A.charAt(X-1) == B.charAt(Y-1))
-      Align(A, B, D, X-1, Y-1, A.charAt(X-1) + AA, B.charAt(Y-1) + AB);
-    if (D[X][Y] == D[X-1][Y-1] + 1)
-      Align(A, B, D, X-1, Y-1, A.charAt(X-1) + AA, B.charAt(Y-1) + AB);
-  }
-  if (X > 0 && D[X][Y] == D[X-1][Y] + 1)
-    Align(A, B, D, X-1, Y, A.charAt(X-1) + AA, "-" + AB);
-  if (Y > 0 && D[X][Y] == D[X][Y-1] + 1)
-    Align(A, B, D, X, Y-1, "-" + AA, B.charAt(Y-1) + AB);
-  return;
-}
-
 public static float KSPC(int keystrokeCount, int transcribedTextLength) {
   return (float)keystrokeCount/transcribedTextLength;
 }
