@@ -89,6 +89,8 @@ String fullAA;
 String fullAB;
 int countNbAlignment;
 
+String fullInputStream = "";
+
 
 /*
   Callback
@@ -613,6 +615,7 @@ void startCounting() {
   println("startCounting");
   textfieldPhrase.setColorValue(color(160, 238, 255));
   keystrokeCount = 1;
+  fullInputStream = "";
 }
 
 void addk3CharToLog(String s) {
@@ -623,6 +626,8 @@ void addk3CharToLog(String s) {
     }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis();
+    
+    fullInputStream += s;
   }
   addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + s);
 }
@@ -635,6 +640,8 @@ void addkbCharToLog(char c, boolean isPress) {
     }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis();
+    
+    fullInputStream += c;
   }
   if (!isCube)
     addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + isPress + "\t" + c);
@@ -786,7 +793,10 @@ void controlEvent(ControlEvent theEvent) {
           "\t" + WordsPerMinute(s, timingS) + 
           "\t" + (keystrokeCount-1) + 
           "\t" + KSPC(keystrokeCount-1, s.length()) + // minus 1 to keystrokeCount to remove Enter
-          "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) / MeanSizeAlignments(phrases.get(phraseIndex), s, LeveinshteinMatrix(phrases.get(phraseIndex), s), phrases.get(phraseIndex).length(), s.length(), "", "") * 100f);
+          "\t" + LeveinshteinDistance(phrases.get(phraseIndex), s) / MeanSizeAlignments(phrases.get(phraseIndex), s, LeveinshteinMatrix(phrases.get(phraseIndex), s), phrases.get(phraseIndex).length(), s.length(), "", "") * 100f +
+          "\t" + fullInputStream          
+          );
+          
         newPhrase(); // public float MeanSizeAlignments(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
       }
       stopCounting();
