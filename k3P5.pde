@@ -651,7 +651,7 @@ void addk3CharToLog(String s) {
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis();
 
-    fullInputStream += s;
+    //fullInputStream += s.charAt(5);
   }
   addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" + s);
 }
