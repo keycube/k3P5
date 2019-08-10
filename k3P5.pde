@@ -813,16 +813,17 @@ void controlEvent(ControlEvent theEvent) {
       float WPM = WordsPerMinute(s, timingS);
       float errorRate = LD / MeanSizeAlignments(presentedText, s, LeveinshteinMatrix(presentedText, s), presentedText.length(), s.length(), "", "") * 100f;
       if (sessionPhrase) {
-        addLog("DONE" +
-          "\t" + presentedText + 
-          "\t" + s + 
-          "\t" + LD + 
-          "\t" + timingS + 
-          "\t" + WPM + 
-          "\t" + (keystrokeCount-1) + 
-          "\t" + KSPC(keystrokeCount-1, s.length()) + // minus 1 to keystrokeCount to remove Enter
-          "\t" + errorRate +
-          "\t" + fullInputStream          
+        addLog(isAzerty + "\t" + Session + "\t" + isCube + "\t" 
+          + "DONE"
+          + "\t" + presentedText 
+          + "\t" + s 
+          + "\t" + LD
+          + "\t" + timingS 
+          + "\t" + WPM
+          + "\t" + (keystrokeCount-1)
+          + "\t" + KSPC(keystrokeCount-1, s.length()) // minus 1 to keystrokeCount to remove Enter
+          + "\t" + errorRate
+          + "\t" + fullInputStream          
           );
 
         newPhrase(); // public float MeanSizeAlignments(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
