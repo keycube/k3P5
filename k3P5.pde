@@ -70,9 +70,11 @@ Pref preference = new Pref();
 
 List<String> phrases;
 int phraseIndex;
-long timer;
+int phraseIndexSession;
+
+//long timer;
 Slider sliderTimer;
-int timerValue = 1200;
+//int timerValue = 1200;
 boolean sessionPhrase = false;
 
 boolean isAzerty = false;
@@ -132,11 +134,11 @@ void bringToFront() {
 }
 
 void setup() {
-  size(492, 764, P3D);
+  size(768, 764, P3D);
   surface.setAlwaysOnTop(true);
   surface.setResizable(true);
 
-  dtfTiming = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+  dtfTiming = DateTimeFormatter.ofPattern("YYYYMMdd HH:mm:ss.SSS");
   dtfYearMonth = DateTimeFormatter.ofPattern("YYYYMM");
 
   smooth();
@@ -247,8 +249,8 @@ void setup() {
   sliderTimer = cp5.addSlider("Timer")
     .setPosition(4, 64)
     .setSize(476, 16)
-    .setRange(0, 1200)
-    .setValue(1200)
+    .setRange(0, 20)
+    .setValue(0)
     .moveTo(groupPhrase)
     ;
 
@@ -258,7 +260,7 @@ void setup() {
   textfieldPhrase = cp5.addTextfield("fieldPhrase")
     .setFont(cfont)
     .setPosition(4, 84)
-    .setSize(476, 32)
+    .setSize(752, 32)
     .setText("abcdefghijklmnopqrstuvwxyz")
     .moveTo(groupPhrase)
     ;
@@ -268,9 +270,9 @@ void setup() {
     .setText("")
     .setFont(cfont)
     .setPosition(4, 120)
-    .setSize(476, 32)
+    .setSize(752, 32)
     .moveTo(groupPhrase)
-    .setText("_")
+    //.setText("_")
     ;
   textfieldRetranscribe.getCaptionLabel().setVisible(false);
 
@@ -444,7 +446,7 @@ void setup() {
 
   Accordion accordion = cp5.addAccordion("accordionMain")
     .setPosition(4, 4)
-    .setWidth(484)
+    .setWidth(760)
     .setMinItemHeight(32)
 
     .addItem(groupUser)
@@ -498,7 +500,7 @@ void setup() {
   printArray(getUserDirectoryList());
 
   loadPhrases();
-  timer = millis();
+  //timer = millis();
 
   float MSA = MeanSizeAlignments("quickly", "qucehkly", LeveinshteinMatrix("quickly", "qucehkly"), "quickly".length(), "qucehkly".length(), "", "");
   println("MSA= " + MSA);
@@ -526,6 +528,8 @@ void draw() {
   }
 
   if (sessionPhrase) {
+    
+    /*
     if (millis() >= timer) {
       timer += 1000;
       timerValue -= 1;
@@ -535,15 +539,16 @@ void draw() {
         sessionPhrase = false;
       }
     }
+    */
   }
 }
 
 public void loadPhrases() {
-  phrases = Arrays.asList(loadStrings("dataset/phrases2.txt"));
+  phrases = Arrays.asList(loadStrings("dataset/mem12345.txt"));
   print(phrases.size());
   addLog("LOAD PHRASES");
-  Collections.shuffle(phrases);
-  phraseIndex = -1;
+  //Collections.shuffle(phrases);
+  //phraseIndex = -1;
 }
 
 public void newPhrase() {
@@ -551,7 +556,9 @@ public void newPhrase() {
     phraseIndex = -1;
   }
   phraseIndex += 1;
-  addLog("PHRASE\t" + phrases.get(phraseIndex));
+  phraseIndexSession += 1;
+  sliderTimer.setValue(phraseIndexSession);
+  //addLog("PHRASE\t" + phrases.get(phraseIndex));
   textfieldPhrase.setText(phrases.get(phraseIndex));
 }
 
@@ -562,7 +569,7 @@ void reSizeWindow() {
       currentHeight += windowHeight[i];
     }
   }
-  surface.setSize(492, currentHeight + 10 * windowHeight.length + 8); // + barHeight * 5 + barMargin * 5 + windowMargin * 2
+  surface.setSize(768, currentHeight + 10 * windowHeight.length + 8); // + barHeight * 5 + barMargin * 5 + windowMargin * 2
 }
 
 void appendLogToFile(String text) {
@@ -664,7 +671,6 @@ void addkbCharToLog(char c, boolean isPress) {
     }
     beforePreviousCharacterTiming = previousCharacterTiming;
     previousCharacterTiming = millis();
-
     fullInputStream += c;
   }
   if (!isCube)
@@ -677,7 +683,7 @@ void addkbCharToLog(int keycode, boolean isPress) {
 }
 
 void addLog(String s) {
-  s = dtfTiming.format(LocalTime.now()) + "\t" + s + "\n";
+  s = dtfTiming.format(LocalDateTime.now()) + "\t" + s + "\n";
   textAreaConsole.append(s);
   appendLogToFile(s);
 }
@@ -712,12 +718,21 @@ void keyPressed() {
 }
 
 void keyReleased() {
-  handleKeyEvent(keyCode, false);
+  //handleKeyEvent(keyCode, false);
 }
 
 void handleKeyEvent(int keycode, boolean isPress) {
   String transcribed = textfieldRetranscribe.getText();
-
+  
+  if (keycode == 39)
+    textfieldRetranscribe.setText(transcribed + "'");
+    
+  if (keycode != 10)
+  {
+    addkbCharToLog(char(keycode), isPress);
+  }
+  
+  /*
   if (keycode == 8) { // backspace
     if (transcribed.length()-1 > 0 && isPress) {
       textfieldRetranscribe.setText(transcribed.substring(0, transcribed.length()-2) + "_");
@@ -780,6 +795,7 @@ void handleKeyEvent(int keycode, boolean isPress) {
         } else {
           addkbCharToLog(keycode, isPress);
         }
+  */
 }
 
 /*
@@ -806,7 +822,7 @@ void controlEvent(ControlEvent theEvent) {
   } else if (theEvent.isController()) {
     if (theEvent.isFrom(textfieldRetranscribe)) {
       String s = theEvent.getStringValue();
-      s = s.substring(0, s.length()-1);
+      //s = s.substring(0, s.length()-1);
       float timingS = (beforePreviousCharacterTiming - firstCharacterTiming)/1000f;
       String presentedText = textfieldPhrase.getText(); //phrases.get(phraseIndex);
       float LD = LeveinshteinDistance(presentedText, s);
@@ -825,8 +841,16 @@ void controlEvent(ControlEvent theEvent) {
           + "\t" + errorRate
           + "\t" + fullInputStream          
           );
-
-        newPhrase(); // public float MeanSizeAlignments(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
+          
+        String[] phraseIndexContent = {"" + phraseIndex};
+        saveStrings("phraseIndex" + isCube + ".txt", phraseIndexContent);
+        
+        if (phraseIndexSession >= 20) {
+          addLog("FINISH (time due) SESSION " + Session);
+          sessionPhrase = false;
+          textfieldPhrase.setText("abcdefghijklmnopqrstuvwxyz");
+        } else 
+          newPhrase(); // public float MeanSizeAlignments(String A, String B, int[][] D, int X, int Y, String AA, String AB) {
       }
       textlabelWPM.setText(WPM + " wpm");
       textlabelErrorRate.setText(errorRate + " %");
@@ -875,6 +899,15 @@ void CubeBoard(boolean theFlag) {
   isCube = theFlag;
   cp5.saveProperties("k3Set", "k3Set");
   addLog("CubeBoard\t" + isCube);
+  println("isCube = " + isCube);
+  
+  String lines[] = loadStrings("phraseIndex" + isCube + ".txt");
+  if (lines != null)
+  {
+    String s = lines[0];
+    phraseIndex = Integer.parseInt(s);
+  }
+  println("phraseIndex = " + phraseIndex);
 }
 
 // Toggle
@@ -908,7 +941,7 @@ public void Pause() {
   if (sessionPhrase) {
     sessionPhrase = false;
     textfieldRetranscribe.submit();
-    textfieldRetranscribe.setText("_");
+    //textfieldRetranscribe.setText("_");
     textfieldRetranscribe.setColorValue(color(0));
     addLog("PAUSE\t");
   }
@@ -916,7 +949,7 @@ public void Pause() {
 
 public void Resume() {
   if (!sessionPhrase) {
-    timer = millis() + 1000;
+    // timer = millis() + 1000;
     sessionPhrase = true;
     textfieldRetranscribe.setColorValue(color(255));
     addLog("RESUME\t");
@@ -942,13 +975,14 @@ public void Load() {
 // Button
 public void Start() {
   textfieldRetranscribe.submit();
-  textfieldRetranscribe.setText("_");
+  //textfieldRetranscribe.setText("_");
   firstCharacterTiming = -1f;
   addLog("START SESSION " + Session);
-  sliderTimer.setValue(1200);
-  timer = millis() + 1000;
-  timerValue = 1200;
+  //sliderTimer.setValue(1200);
+  //timer = millis() + 1000;
+  //timerValue = 1200;
   sessionPhrase = true;
+  phraseIndexSession = 0;
   newPhrase();
 }
 
