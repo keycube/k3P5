@@ -545,7 +545,7 @@ void draw() {
 
 public void loadPhrases() {
   phrases = Arrays.asList(loadStrings("dataset/mem12345.txt"));
-  print(phrases.size());
+  println("phrasesSIZE = " + phrases.size());
   addLog("LOAD PHRASES");
   //Collections.shuffle(phrases);
   //phraseIndex = -1;
@@ -845,7 +845,7 @@ void controlEvent(ControlEvent theEvent) {
         String[] phraseIndexContent = {"" + phraseIndex};
         saveStrings("phraseIndex" + isCube + ".txt", phraseIndexContent);
         
-        if (phraseIndexSession >= 20) {
+        if (phraseIndexSession >= 300) {
           addLog("FINISH (time due) SESSION " + Session);
           sessionPhrase = false;
           textfieldPhrase.setText("abcdefghijklmnopqrstuvwxyz");
